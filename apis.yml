@@ -1,0 +1,14 @@
+name: Rook
+description: Cloud-native storage orchestrator for Kubernetes, providing the platform,
+  framework, and support for distributed storage systems to natively integrate with
+  cloud-native environments
+url: https://rook.io
+tags:
+- Kubernetes
+- Storage
+- Cloud Native
+- Orchestration
+created: '2025'
+modified: '2025'
+apis: []
+common: []
