@@ -1,14 +1,20 @@
+aid: rook
 name: Rook
 description: Cloud-native storage orchestrator for Kubernetes, providing the platform,
   framework, and support for distributed storage systems to natively integrate with
-  cloud-native environments
-url: https://rook.io
+  cloud-native environments.
+type: Index
+url: https://raw.githubusercontent.com/api-evangelist/rook/refs/heads/main/apis.yml
 tags:
 - Kubernetes
 - Storage
 - Cloud Native
 - Orchestration
-created: '2025'
-modified: '2025'
+created: '2025-01-01'
+modified: '2026-03-16'
+specificationVersion: '0.19'
 apis: []
 common: []
+maintainers:
+  - FN: Kin Lane
+    email: kin@apievangelist.com
