@@ -1,0 +1,429 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://rook.io/schemas/rook/ceph-filesystem.json",
+  "title": "Rook CephFilesystem",
+  "description": "Schema for the Rook CephFilesystem Custom Resource Definition, which provisions CephFS shared file storage on Kubernetes. CephFilesystem defines metadata and data pool configurations, metadata server (MDS) settings, and volume snapshot scheduling for a POSIX-compliant shared filesystem that supports ReadWriteMany access from multiple pods.",
+  "type": "object",
+  "required": ["apiVersion", "kind", "metadata", "spec"],
+  "properties": {
+    "apiVersion": {
+      "type": "string",
+      "description": "Kubernetes API version for the CephFilesystem resource",
+      "const": "ceph.rook.io/v1"
+    },
+    "kind": {
+      "type": "string",
+      "description": "Kubernetes resource kind, always CephFilesystem",
+      "const": "CephFilesystem"
+    },
+    "metadata": {
+      "$ref": "#/$defs/ObjectMeta"
+    },
+    "spec": {
+      "$ref": "#/$defs/CephFilesystemSpec"
+    },
+    "status": {
+      "$ref": "#/$defs/CephFilesystemStatus"
+    }
+  },
+  "$defs": {
+    "ObjectMeta": {
+      "type": "object",
+      "description": "Kubernetes object metadata",
+      "required": ["name"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Name of the CephFilesystem resource, also used as the CephFS filesystem name",
+          "minLength": 1,
+          "maxLength": 253
+        },
+        "namespace": {
+          "type": "string",
+          "description": "Kubernetes namespace where the filesystem resource is deployed",
+          "minLength": 1,
+          "maxLength": 63
+        },
+        "labels": {
+          "type": "object",
+          "description": "Key-value labels for organizing and selecting Kubernetes resources",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "annotations": {
+          "type": "object",
+          "description": "Key-value annotations for storing non-identifying metadata",
+          "additionalProperties": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "CephFilesystemSpec": {
+      "type": "object",
+      "description": "Specification for the CephFilesystem including metadata pool, data pools, and MDS configuration",
+      "required": ["metadataPool", "dataPools", "metadataServer"],
+      "properties": {
+        "metadataPool": {
+          "$ref": "#/$defs/PoolSpec",
+          "description": "Configuration for the CephFS metadata pool storing filesystem directory structure and file metadata"
+        },
+        "dataPools": {
+          "type": "array",
+          "description": "List of data pool configurations where CephFS file content is stored. Multiple data pools allow tiering across different storage classes.",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/NamedPoolSpec"
+          }
+        },
+        "metadataServer": {
+          "$ref": "#/$defs/MetadataServerSpec",
+          "description": "Configuration for the CephFS Metadata Server (MDS) daemons"
+        },
+        "preserveFilesystemOnDelete": {
+          "type": "boolean",
+          "description": "If true, the CephFS filesystem data is preserved when the CephFilesystem CRD is deleted. If false, the filesystem and all data are permanently deleted.",
+          "default": false
+        },
+        "statusCheck": {
+          "type": "object",
+          "description": "Settings for the periodic health check of the filesystem",
+          "properties": {
+            "mirror": {
+              "type": "object",
+              "description": "Health check settings for filesystem mirroring",
+              "properties": {
+                "disabled": {
+                  "type": "boolean",
+                  "description": "Whether the mirroring health check is disabled"
+                },
+                "interval": {
+                  "type": "string",
+                  "description": "Interval for the mirroring health check (e.g. 60s)"
+                }
+              }
+            }
+          }
+        },
+        "mirroring": {
+          "type": "object",
+          "description": "CephFS filesystem mirroring configuration for disaster recovery",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "description": "Whether filesystem mirroring is enabled"
+            },
+            "peers": {
+              "type": "object",
+              "description": "Remote Ceph cluster peer configuration",
+              "properties": {
+                "secretNames": {
+                  "type": "array",
+                  "description": "Kubernetes Secret names with bootstrap tokens for remote cluster peers",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "snapshotSchedules": {
+              "type": "array",
+              "description": "Snapshot schedules for filesystem mirroring synchronization",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "path": {
+                    "type": "string",
+                    "description": "CephFS path to apply the snapshot schedule to"
+                  },
+                  "interval": {
+                    "type": "string",
+                    "description": "Snapshot interval (e.g. 24h, 1d)"
+                  },
+                  "startTime": {
+                    "type": "string",
+                    "description": "Start time for the snapshot schedule"
+                  }
+                }
+              }
+            },
+            "snapshotRetention": {
+              "type": "array",
+              "description": "Snapshot retention policies for mirroring",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "path": {
+                    "type": "string",
+                    "description": "CephFS path the retention policy applies to"
+                  },
+                  "duration": {
+                    "type": "string",
+                    "description": "How long to retain snapshots (e.g. 24h, 7d)"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "PoolSpec": {
+      "type": "object",
+      "description": "Configuration for a Ceph pool used by the filesystem",
+      "properties": {
+        "failureDomain": {
+          "type": "string",
+          "description": "Failure domain for spreading data across for fault tolerance",
+          "enum": ["osd", "host", "chassis", "rack", "row", "pdu", "pod", "room", "datacenter", "zone", "region", "root"]
+        },
+        "deviceClass": {
+          "type": "string",
+          "description": "OSD device class this pool should use",
+          "enum": ["hdd", "ssd", "nvme"]
+        },
+        "replicated": {
+          "type": "object",
+          "description": "Replicated pool configuration",
+          "required": ["size"],
+          "properties": {
+            "size": {
+              "type": "integer",
+              "description": "Number of replicas for data redundancy",
+              "minimum": 1,
+              "maximum": 10
+            },
+            "requireSafeReplicaSize": {
+              "type": "boolean",
+              "description": "Prevent creation of pools with unsafe replication factors",
+              "default": true
+            }
+          }
+        },
+        "erasureCoded": {
+          "type": "object",
+          "description": "Erasure coding pool configuration",
+          "required": ["dataChunks", "codingChunks"],
+          "properties": {
+            "dataChunks": {
+              "type": "integer",
+              "description": "Number of data chunks in the erasure coding stripe",
+              "minimum": 2
+            },
+            "codingChunks": {
+              "type": "integer",
+              "description": "Number of coding (parity) chunks",
+              "minimum": 1
+            }
+          }
+        },
+        "parameters": {
+          "type": "object",
+          "description": "Additional Ceph pool parameters",
+          "additionalProperties": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "NamedPoolSpec": {
+      "type": "object",
+      "description": "A named Ceph pool configuration for filesystem data storage",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Name suffix for the data pool. The full pool name will be {filesystem-name}-{name}."
+        },
+        "failureDomain": {
+          "type": "string",
+          "description": "Failure domain for the data pool"
+        },
+        "deviceClass": {
+          "type": "string",
+          "description": "OSD device class for the data pool"
+        },
+        "replicated": {
+          "type": "object",
+          "description": "Replicated data pool configuration",
+          "properties": {
+            "size": {
+              "type": "integer",
+              "description": "Number of replicas",
+              "minimum": 1
+            }
+          }
+        },
+        "erasureCoded": {
+          "type": "object",
+          "description": "Erasure coded data pool configuration",
+          "properties": {
+            "dataChunks": {
+              "type": "integer",
+              "description": "Number of data chunks",
+              "minimum": 2
+            },
+            "codingChunks": {
+              "type": "integer",
+              "description": "Number of coding chunks",
+              "minimum": 1
+            }
+          }
+        }
+      }
+    },
+    "MetadataServerSpec": {
+      "type": "object",
+      "description": "Configuration for the CephFS Metadata Server (MDS) daemon that manages filesystem namespace operations",
+      "required": ["activeCount"],
+      "properties": {
+        "activeCount": {
+          "type": "integer",
+          "description": "Number of active MDS instances. Additional standby MDS daemons are started for failover. Production deployments should use at least 1.",
+          "minimum": 1,
+          "maximum": 10
+        },
+        "activeStandby": {
+          "type": "boolean",
+          "description": "If true, standby MDS daemons pre-warm their cache by following the active MDS journal, allowing faster failover",
+          "default": false
+        },
+        "annotations": {
+          "type": "object",
+          "description": "Kubernetes annotations to add to the MDS daemon pods",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "labels": {
+          "type": "object",
+          "description": "Kubernetes labels to add to the MDS daemon pods",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "resources": {
+          "type": "object",
+          "description": "CPU and memory resource requests and limits for MDS daemon pods",
+          "properties": {
+            "requests": {
+              "type": "object",
+              "properties": {
+                "cpu": {
+                  "type": "string",
+                  "description": "CPU request for MDS pods"
+                },
+                "memory": {
+                  "type": "string",
+                  "description": "Memory request for MDS pods"
+                }
+              }
+            },
+            "limits": {
+              "type": "object",
+              "properties": {
+                "cpu": {
+                  "type": "string",
+                  "description": "CPU limit for MDS pods"
+                },
+                "memory": {
+                  "type": "string",
+                  "description": "Memory limit for MDS pods"
+                }
+              }
+            }
+          }
+        },
+        "priorityClassName": {
+          "type": "string",
+          "description": "Priority class name for the MDS daemon pods"
+        },
+        "placement": {
+          "type": "object",
+          "description": "Kubernetes placement settings for MDS pods including nodeSelector, tolerations, and affinity"
+        },
+        "livenessProbe": {
+          "type": "object",
+          "description": "Kubernetes liveness probe configuration for MDS daemon containers"
+        },
+        "startupProbe": {
+          "type": "object",
+          "description": "Kubernetes startup probe configuration for MDS daemon containers"
+        }
+      }
+    },
+    "CephFilesystemStatus": {
+      "type": "object",
+      "description": "Observed state of the CephFilesystem as reported by the Rook operator",
+      "properties": {
+        "phase": {
+          "type": "string",
+          "description": "Current lifecycle phase of the filesystem",
+          "enum": ["Creating", "Ready", "Deleting", "Error", "Progressing"]
+        },
+        "conditions": {
+          "type": "array",
+          "description": "Conditions representing the current state of the filesystem",
+          "items": {
+            "$ref": "#/$defs/Condition"
+          }
+        },
+        "mirroringStatus": {
+          "type": "object",
+          "description": "CephFS mirroring daemon status",
+          "properties": {
+            "lastChecked": {
+              "type": "string",
+              "format": "date-time",
+              "description": "Time of the last mirroring status check"
+            },
+            "details": {
+              "type": "string",
+              "description": "Detailed mirroring status message"
+            },
+            "daemonsStatus": {
+              "type": "array",
+              "description": "Status of individual mirroring daemon instances",
+              "items": {
+                "type": "object"
+              }
+            }
+          }
+        },
+        "snapshotScheduleStatus": {
+          "type": "object",
+          "description": "Status of snapshot schedules configured for mirroring"
+        }
+      }
+    },
+    "Condition": {
+      "type": "object",
+      "description": "A Kubernetes-style condition for the filesystem resource",
+      "required": ["type", "status"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "Type of condition"
+        },
+        "status": {
+          "type": "string",
+          "description": "Status of the condition",
+          "enum": ["True", "False", "Unknown"]
+        },
+        "reason": {
+          "type": "string",
+          "description": "Machine-readable reason for the condition"
+        },
+        "message": {
+          "type": "string",
+          "description": "Human-readable description of the condition"
+        },
+        "lastTransitionTime": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Time when the condition last changed"
+        }
+      }
+    }
+  }
+}

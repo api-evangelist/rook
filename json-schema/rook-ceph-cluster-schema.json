@@ -1,0 +1,756 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://rook.io/schemas/rook/ceph-cluster.json",
+  "title": "Rook Ceph CRD Resources",
+  "description": "Schema for Rook Ceph Custom Resource Definitions used to declaratively manage Ceph storage clusters on Kubernetes. Covers CephCluster, CephBlockPool, CephFilesystem, CephObjectStore, CephObjectStoreUser, and related storage primitives.",
+  "type": "object",
+  "$defs": {
+    "ObjectMeta": {
+      "type": "object",
+      "title": "ObjectMeta",
+      "description": "Kubernetes object metadata common to all CRD resources",
+      "required": ["name"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Name of the Kubernetes resource, unique within its namespace",
+          "minLength": 1,
+          "maxLength": 253
+        },
+        "namespace": {
+          "type": "string",
+          "description": "Kubernetes namespace where the resource is deployed",
+          "minLength": 1,
+          "maxLength": 63
+        },
+        "labels": {
+          "type": "object",
+          "description": "Key-value labels for organizing and selecting Kubernetes resources",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "annotations": {
+          "type": "object",
+          "description": "Key-value annotations for storing non-identifying metadata",
+          "additionalProperties": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "ResourceRequirements": {
+      "type": "object",
+      "title": "ResourceRequirements",
+      "description": "Kubernetes CPU and memory resource requests and limits for Ceph daemon pods",
+      "properties": {
+        "requests": {
+          "type": "object",
+          "description": "Minimum resource amounts requested from the Kubernetes scheduler",
+          "properties": {
+            "cpu": {
+              "type": "string",
+              "description": "CPU request (e.g., '500m' for half a core or '2' for 2 cores)"
+            },
+            "memory": {
+              "type": "string",
+              "description": "Memory request (e.g., '512Mi' or '2Gi')"
+            }
+          }
+        },
+        "limits": {
+          "type": "object",
+          "description": "Maximum resource amounts the container may consume",
+          "properties": {
+            "cpu": {
+              "type": "string",
+              "description": "CPU limit (e.g., '2' for 2 cores)"
+            },
+            "memory": {
+              "type": "string",
+              "description": "Memory limit (e.g., '4Gi')"
+            }
+          }
+        }
+      }
+    },
+    "Placement": {
+      "type": "object",
+      "title": "Placement",
+      "description": "Kubernetes scheduling constraints for placing Ceph daemon pods on specific nodes",
+      "properties": {
+        "nodeAffinity": {
+          "type": "object",
+          "description": "Node affinity rules for restricting which nodes daemons can run on"
+        },
+        "podAffinity": {
+          "type": "object",
+          "description": "Pod affinity rules for co-locating daemons with other pods"
+        },
+        "podAntiAffinity": {
+          "type": "object",
+          "description": "Pod anti-affinity rules for spreading daemons across nodes or zones"
+        },
+        "tolerations": {
+          "type": "array",
+          "description": "Tolerations allowing daemon pods to be scheduled on tainted nodes",
+          "items": {
+            "type": "object",
+            "description": "A Kubernetes toleration"
+          }
+        },
+        "topologySpreadConstraints": {
+          "type": "array",
+          "description": "Constraints for spreading daemon pods across topology domains",
+          "items": {
+            "type": "object",
+            "description": "A topology spread constraint"
+          }
+        }
+      }
+    },
+    "NetworkSpec": {
+      "type": "object",
+      "title": "NetworkSpec",
+      "description": "Network configuration for the Ceph cluster including host networking and provider settings",
+      "properties": {
+        "provider": {
+          "type": "string",
+          "description": "Network provider to use for Ceph cluster networking",
+          "enum": ["", "host", "multus"]
+        },
+        "selectors": {
+          "type": "object",
+          "description": "Network interface selectors when using Multus CNI",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "hostNetwork": {
+          "type": "boolean",
+          "description": "When true, Ceph daemons use the host network namespace instead of pod networking"
+        },
+        "ipFamily": {
+          "type": "string",
+          "description": "IP address family for Ceph cluster networking",
+          "enum": ["IPv4", "IPv6", "DualStack"]
+        },
+        "dualStack": {
+          "type": "boolean",
+          "description": "When true, enables dual-stack IPv4/IPv6 networking for the Ceph cluster"
+        }
+      }
+    },
+    "CephClusterSpec": {
+      "type": "object",
+      "title": "CephClusterSpec",
+      "description": "Specification for a CephCluster resource defining the desired state of a Ceph storage cluster managed by Rook",
+      "required": ["dataDirHostPath"],
+      "properties": {
+        "cephVersion": {
+          "type": "object",
+          "description": "Ceph container image version configuration",
+          "properties": {
+            "image": {
+              "type": "string",
+              "description": "Container image for Ceph daemons (e.g., 'quay.io/ceph/ceph:v18.2.0')"
+            },
+            "allowUnsupported": {
+              "type": "boolean",
+              "description": "When true, allows running unsupported Ceph versions"
+            }
+          }
+        },
+        "dataDirHostPath": {
+          "type": "string",
+          "description": "Host path on each node where Ceph configuration and data will be stored (e.g., '/var/lib/rook')"
+        },
+        "skipUpgradeChecks": {
+          "type": "boolean",
+          "description": "When true, skips safety checks before upgrading the Ceph version"
+        },
+        "continueUpgradeAfterChecksEvenIfNotHealthy": {
+          "type": "boolean",
+          "description": "When true, continues cluster upgrades even if the cluster is not fully healthy"
+        },
+        "waitTimeoutForHealthyOSDInMinutes": {
+          "type": "integer",
+          "description": "Timeout in minutes to wait for OSDs to become healthy before aborting an upgrade",
+          "minimum": 1
+        },
+        "mon": {
+          "type": "object",
+          "description": "Configuration for Ceph Monitor (MON) daemons that maintain cluster state",
+          "properties": {
+            "count": {
+              "type": "integer",
+              "description": "Number of MON daemons to run. Should be an odd number for quorum (typically 3 or 5).",
+              "minimum": 1,
+              "maximum": 9
+            },
+            "allowMultiplePerNode": {
+              "type": "boolean",
+              "description": "When true, allows multiple MON pods to run on the same node (not recommended for production)"
+            },
+            "volumeClaimTemplate": {
+              "type": "object",
+              "description": "PVC template for MON data storage when using PVCs instead of host paths"
+            }
+          }
+        },
+        "mgr": {
+          "type": "object",
+          "description": "Configuration for Ceph Manager (MGR) daemons that provide monitoring and management services",
+          "properties": {
+            "count": {
+              "type": "integer",
+              "description": "Number of MGR daemons to run (typically 1 or 2)",
+              "minimum": 1,
+              "maximum": 2
+            },
+            "allowMultiplePerNode": {
+              "type": "boolean",
+              "description": "When true, allows multiple MGR pods to run on the same node"
+            },
+            "modules": {
+              "type": "array",
+              "description": "Ceph MGR modules to enable (e.g., pg_autoscaler, prometheus)",
+              "items": {
+                "type": "object",
+                "description": "A Ceph MGR module configuration",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "Name of the MGR module to enable or disable"
+                  },
+                  "enabled": {
+                    "type": "boolean",
+                    "description": "Whether this module should be enabled"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "dashboard": {
+          "type": "object",
+          "description": "Configuration for the Ceph Dashboard web UI",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "description": "Whether to enable the Ceph Dashboard"
+            },
+            "urlPrefix": {
+              "type": "string",
+              "description": "URL prefix for the dashboard when served behind a reverse proxy"
+            },
+            "port": {
+              "type": "integer",
+              "description": "Port number for the Ceph Dashboard",
+              "minimum": 1,
+              "maximum": 65535
+            },
+            "ssl": {
+              "type": "boolean",
+              "description": "When true, enables SSL/TLS for the Ceph Dashboard"
+            }
+          }
+        },
+        "monitoring": {
+          "type": "object",
+          "description": "Configuration for Prometheus monitoring integration",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "description": "When true, creates a ServiceMonitor for Prometheus to scrape Ceph metrics"
+            }
+          }
+        },
+        "network": {
+          "$ref": "#/$defs/NetworkSpec",
+          "description": "Network configuration for the Ceph cluster"
+        },
+        "storage": {
+          "type": "object",
+          "description": "Storage configuration specifying which nodes and devices to use for Ceph OSDs",
+          "properties": {
+            "useAllNodes": {
+              "type": "boolean",
+              "description": "When true, uses all available nodes for Ceph OSDs"
+            },
+            "useAllDevices": {
+              "type": "boolean",
+              "description": "When true, uses all available block devices on selected nodes for OSDs"
+            },
+            "deviceFilter": {
+              "type": "string",
+              "description": "Regular expression to match device names to include as OSDs"
+            },
+            "nodes": {
+              "type": "array",
+              "description": "Explicit list of nodes and devices to use for Ceph OSDs",
+              "items": {
+                "$ref": "#/$defs/Node"
+              }
+            },
+            "storageClassDeviceSets": {
+              "type": "array",
+              "description": "PVC-based OSD configuration using StorageClass device sets",
+              "items": {
+                "$ref": "#/$defs/StorageClassDeviceSet"
+              }
+            }
+          }
+        },
+        "placement": {
+          "type": "object",
+          "description": "Placement configuration per daemon type (all, mon, osd, mgr, mds, rgw)",
+          "additionalProperties": {
+            "$ref": "#/$defs/Placement"
+          }
+        },
+        "resources": {
+          "type": "object",
+          "description": "Resource requests and limits per daemon type",
+          "additionalProperties": {
+            "$ref": "#/$defs/ResourceRequirements"
+          }
+        },
+        "priorityClassNames": {
+          "type": "object",
+          "description": "Kubernetes PriorityClass names assigned per daemon type",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "labels": {
+          "type": "object",
+          "description": "Labels to apply to daemon pods per daemon type",
+          "additionalProperties": {
+            "type": "object"
+          }
+        },
+        "annotations": {
+          "type": "object",
+          "description": "Annotations to apply to daemon pods per daemon type",
+          "additionalProperties": {
+            "type": "object"
+          }
+        },
+        "crashCollector": {
+          "type": "object",
+          "description": "Configuration for the Ceph crash collector daemon",
+          "properties": {
+            "disable": {
+              "type": "boolean",
+              "description": "When true, disables the crash collector daemon"
+            },
+            "daysToRetain": {
+              "type": "integer",
+              "description": "Number of days to retain crash reports before deletion",
+              "minimum": 0
+            }
+          }
+        },
+        "logCollector": {
+          "type": "object",
+          "description": "Configuration for collecting Ceph daemon logs",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "description": "When true, enables the log collector sidecar for Ceph daemons"
+            },
+            "periodicity": {
+              "type": "string",
+              "description": "Log rotation periodicity (e.g., 'daily', 'weekly')"
+            },
+            "maxLogSize": {
+              "type": "string",
+              "description": "Maximum log file size before rotation (e.g., '500M')"
+            }
+          }
+        },
+        "cleanupPolicy": {
+          "type": "object",
+          "description": "Policy for cleaning up cluster data when the CephCluster is deleted",
+          "properties": {
+            "confirmation": {
+              "type": "string",
+              "description": "Confirmation string required to enable data deletion ('yes-really-destroy-data')"
+            },
+            "sanitizeDisks": {
+              "type": "object",
+              "description": "Configuration for sanitizing (wiping) OSD disks on cleanup"
+            },
+            "allowUninstallWithVolumes": {
+              "type": "boolean",
+              "description": "When true, allows cluster deletion even if PVCs are still present"
+            }
+          }
+        }
+      }
+    },
+    "Node": {
+      "type": "object",
+      "title": "Node",
+      "description": "A Kubernetes node configuration specifying which devices to use for Ceph OSDs",
+      "required": ["name"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Hostname or node name in the Kubernetes cluster"
+        },
+        "devices": {
+          "type": "array",
+          "description": "List of specific block devices on this node to use as Ceph OSDs",
+          "items": {
+            "type": "object",
+            "description": "A block device configuration",
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "Device name (e.g., 'sdb', 'nvme0n1')"
+              },
+              "config": {
+                "type": "object",
+                "description": "OSD-specific configuration for this device"
+              }
+            }
+          }
+        },
+        "deviceFilter": {
+          "type": "string",
+          "description": "Regular expression to match device names on this specific node"
+        },
+        "useAllDevices": {
+          "type": "boolean",
+          "description": "When true, uses all available devices on this node"
+        }
+      }
+    },
+    "StorageClassDeviceSet": {
+      "type": "object",
+      "title": "StorageClassDeviceSet",
+      "description": "A PVC-based OSD device set that provisions OSDs using a Kubernetes StorageClass",
+      "required": ["name", "count", "volumeClaimTemplates"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Name of the device set for identification"
+        },
+        "count": {
+          "type": "integer",
+          "description": "Number of OSDs to provision in this device set",
+          "minimum": 1
+        },
+        "replica": {
+          "type": "integer",
+          "description": "Number of replicas per OSD (for erasure coding configurations)",
+          "minimum": 1
+        },
+        "portable": {
+          "type": "boolean",
+          "description": "When true, OSD pods can be rescheduled to different nodes"
+        },
+        "tuneSlowDeviceClass": {
+          "type": "boolean",
+          "description": "When true, applies OSD settings optimized for slow devices (HDDs)"
+        },
+        "tuneFastDeviceClass": {
+          "type": "boolean",
+          "description": "When true, applies OSD settings optimized for fast devices (NVMe SSDs)"
+        },
+        "volumeClaimTemplates": {
+          "type": "array",
+          "description": "PVC templates defining the storage volumes to provision for each OSD",
+          "items": {
+            "type": "object",
+            "description": "A PVC template for OSD storage"
+          }
+        }
+      }
+    },
+    "CephBlockPoolSpec": {
+      "type": "object",
+      "title": "CephBlockPoolSpec",
+      "description": "Specification for a CephBlockPool resource defining a Ceph RADOS Block Device (RBD) pool for block storage",
+      "properties": {
+        "failureDomain": {
+          "type": "string",
+          "description": "CRUSH failure domain for data distribution (e.g., 'host', 'rack', 'zone')"
+        },
+        "crushRoot": {
+          "type": "string",
+          "description": "CRUSH root for this pool overriding the default CRUSH hierarchy root"
+        },
+        "deviceClass": {
+          "type": "string",
+          "description": "Ceph device class for this pool (e.g., 'hdd', 'ssd', 'nvme')"
+        },
+        "replicated": {
+          "type": "object",
+          "description": "Replicated pool configuration (use instead of erasureCoded)",
+          "properties": {
+            "size": {
+              "type": "integer",
+              "description": "Number of replicas for data in this pool",
+              "minimum": 1,
+              "maximum": 10
+            },
+            "requireSafeReplicaSize": {
+              "type": "boolean",
+              "description": "When true, requires the replica size to guarantee data safety"
+            },
+            "replicasPerFailureDomain": {
+              "type": "integer",
+              "description": "Number of replicas per failure domain for stretched clusters",
+              "minimum": 1
+            }
+          }
+        },
+        "erasureCoded": {
+          "type": "object",
+          "description": "Erasure coded pool configuration (use instead of replicated)",
+          "properties": {
+            "dataChunks": {
+              "type": "integer",
+              "description": "Number of data chunks for erasure coding",
+              "minimum": 2
+            },
+            "codingChunks": {
+              "type": "integer",
+              "description": "Number of coding (parity) chunks for erasure coding",
+              "minimum": 1
+            }
+          }
+        },
+        "parameters": {
+          "type": "object",
+          "description": "Additional Ceph pool parameters as key-value pairs",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "mirroring": {
+          "type": "object",
+          "description": "RBD mirroring configuration for cross-cluster replication",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "description": "When true, enables RBD mirroring for this block pool"
+            },
+            "mode": {
+              "type": "string",
+              "description": "Mirroring mode",
+              "enum": ["image", "pool"]
+            }
+          }
+        },
+        "quotas": {
+          "type": "object",
+          "description": "Storage quota limits for this pool",
+          "properties": {
+            "maxBytes": {
+              "type": "string",
+              "description": "Maximum total bytes for this pool (e.g., '10Gi')"
+            },
+            "maxObjects": {
+              "type": "integer",
+              "description": "Maximum number of objects in this pool",
+              "minimum": 0
+            }
+          }
+        }
+      }
+    },
+    "CephFilesystemSpec": {
+      "type": "object",
+      "title": "CephFilesystemSpec",
+      "description": "Specification for a CephFilesystem resource defining a CephFS shared filesystem with metadata and data pools",
+      "required": ["metadataPool", "dataPools", "metadataServer"],
+      "properties": {
+        "metadataPool": {
+          "type": "object",
+          "description": "Configuration for the CephFS metadata pool storing filesystem metadata",
+          "properties": {
+            "replicated": {
+              "type": "object",
+              "description": "Replication configuration for the metadata pool",
+              "properties": {
+                "size": {
+                  "type": "integer",
+                  "description": "Number of replicas for metadata",
+                  "minimum": 1
+                }
+              }
+            },
+            "failureDomain": {
+              "type": "string",
+              "description": "CRUSH failure domain for metadata pool"
+            }
+          }
+        },
+        "dataPools": {
+          "type": "array",
+          "description": "List of data pool configurations for storing filesystem file data",
+          "items": {
+            "type": "object",
+            "description": "A CephFS data pool configuration"
+          }
+        },
+        "preserveFilesystemOnDelete": {
+          "type": "boolean",
+          "description": "When true, preserves the Ceph filesystem when the CephFilesystem CRD is deleted"
+        },
+        "metadataServer": {
+          "type": "object",
+          "description": "Configuration for Ceph Metadata Server (MDS) daemons",
+          "properties": {
+            "activeCount": {
+              "type": "integer",
+              "description": "Number of active MDS daemons to run",
+              "minimum": 1
+            },
+            "activeStandby": {
+              "type": "boolean",
+              "description": "When true, provisions standby MDS daemons for each active one"
+            },
+            "placement": {
+              "$ref": "#/$defs/Placement"
+            },
+            "resources": {
+              "$ref": "#/$defs/ResourceRequirements"
+            }
+          }
+        }
+      }
+    },
+    "CephObjectStoreSpec": {
+      "type": "object",
+      "title": "CephObjectStoreSpec",
+      "description": "Specification for a CephObjectStore resource deploying a Ceph RADOS Gateway (RGW) providing S3 and Swift compatible object storage",
+      "required": ["gateway"],
+      "properties": {
+        "metadataPool": {
+          "type": "object",
+          "description": "Configuration for the object store metadata pools"
+        },
+        "dataPool": {
+          "type": "object",
+          "description": "Configuration for the object store data pool"
+        },
+        "preservePoolsOnDelete": {
+          "type": "boolean",
+          "description": "When true, preserves Ceph pools when the CephObjectStore CRD is deleted"
+        },
+        "gateway": {
+          "type": "object",
+          "description": "Configuration for the Ceph RADOS Gateway (RGW) HTTP/S3 service",
+          "required": ["instances"],
+          "properties": {
+            "type": {
+              "type": "string",
+              "description": "Gateway type",
+              "enum": ["s3"]
+            },
+            "sslCertificateRef": {
+              "type": "string",
+              "description": "Name of a Kubernetes Secret containing the TLS certificate for HTTPS"
+            },
+            "port": {
+              "type": "integer",
+              "description": "HTTP port for the RGW service",
+              "minimum": 1,
+              "maximum": 65535
+            },
+            "securePort": {
+              "type": "integer",
+              "description": "HTTPS port for the RGW service",
+              "minimum": 1,
+              "maximum": 65535
+            },
+            "instances": {
+              "type": "integer",
+              "description": "Number of RGW daemon instances to run",
+              "minimum": 1
+            },
+            "placement": {
+              "$ref": "#/$defs/Placement"
+            },
+            "resources": {
+              "$ref": "#/$defs/ResourceRequirements"
+            }
+          }
+        },
+        "zone": {
+          "type": "object",
+          "description": "RGW zone configuration for multi-site object storage",
+          "properties": {
+            "name": {
+              "type": "string",
+              "description": "Name of the Ceph zone for this object store"
+            }
+          }
+        }
+      }
+    },
+    "CephObjectStoreUserSpec": {
+      "type": "object",
+      "title": "CephObjectStoreUserSpec",
+      "description": "Specification for a CephObjectStoreUser resource creating an RGW user with S3 credentials",
+      "required": ["store", "displayName"],
+      "properties": {
+        "store": {
+          "type": "string",
+          "description": "Name of the CephObjectStore this user belongs to"
+        },
+        "displayName": {
+          "type": "string",
+          "description": "Human-readable display name for the object store user"
+        },
+        "capabilities": {
+          "type": "object",
+          "description": "Ceph RGW administrative capabilities granted to this user",
+          "properties": {
+            "user": {
+              "type": "string",
+              "description": "User management capability level (e.g., 'read', 'write', '*')"
+            },
+            "bucket": {
+              "type": "string",
+              "description": "Bucket management capability level"
+            },
+            "metadata": {
+              "type": "string",
+              "description": "Metadata management capability level"
+            },
+            "zone": {
+              "type": "string",
+              "description": "Zone management capability level"
+            }
+          }
+        },
+        "quotas": {
+          "type": "object",
+          "description": "Storage quotas for this user",
+          "properties": {
+            "maxBuckets": {
+              "type": "integer",
+              "description": "Maximum number of buckets this user can create",
+              "minimum": -1
+            },
+            "maxSize": {
+              "type": "string",
+              "description": "Maximum total storage size for this user (e.g., '10Gi')"
+            },
+            "maxObjects": {
+              "type": "integer",
+              "description": "Maximum number of objects this user can store",
+              "minimum": -1
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,461 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://rook.io/schemas/rook/ceph-object-store.json",
+  "title": "Rook CephObjectStore",
+  "description": "Schema for the Rook CephObjectStore and CephObjectStoreUser Custom Resource Definitions, which provision Ceph RADOS Gateway (RGW) object storage endpoints on Kubernetes. CephObjectStore defines S3-compatible and Swift-compatible gateway configuration, pool settings, and zone membership. CephObjectStoreUser defines user credentials and capabilities for accessing the object store.",
+  "type": "object",
+  "required": ["apiVersion", "kind", "metadata", "spec"],
+  "properties": {
+    "apiVersion": {
+      "type": "string",
+      "description": "Kubernetes API version for the CephObjectStore resource",
+      "const": "ceph.rook.io/v1"
+    },
+    "kind": {
+      "type": "string",
+      "description": "Kubernetes resource kind, either CephObjectStore or CephObjectStoreUser",
+      "enum": ["CephObjectStore", "CephObjectStoreUser"]
+    },
+    "metadata": {
+      "$ref": "#/$defs/ObjectMeta"
+    },
+    "spec": {
+      "oneOf": [
+        { "$ref": "#/$defs/CephObjectStoreSpec" },
+        { "$ref": "#/$defs/CephObjectStoreUserSpec" }
+      ]
+    },
+    "status": {
+      "$ref": "#/$defs/CephObjectStoreStatus"
+    }
+  },
+  "$defs": {
+    "ObjectMeta": {
+      "type": "object",
+      "description": "Kubernetes object metadata",
+      "required": ["name"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Name of the CephObjectStore or CephObjectStoreUser resource",
+          "minLength": 1,
+          "maxLength": 253
+        },
+        "namespace": {
+          "type": "string",
+          "description": "Kubernetes namespace where the resource is deployed",
+          "minLength": 1,
+          "maxLength": 63
+        },
+        "labels": {
+          "type": "object",
+          "description": "Key-value labels for Kubernetes resource organization",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "annotations": {
+          "type": "object",
+          "description": "Key-value annotations for storing non-identifying metadata",
+          "additionalProperties": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "CephObjectStoreSpec": {
+      "type": "object",
+      "description": "Specification for a CephObjectStore defining RGW gateway, metadata pool, data pool, and zone settings",
+      "properties": {
+        "metadataPool": {
+          "$ref": "#/$defs/PoolSpec",
+          "description": "Configuration for the Ceph pool storing object metadata, bucket listings, and user data"
+        },
+        "dataPool": {
+          "$ref": "#/$defs/PoolSpec",
+          "description": "Configuration for the Ceph pool storing actual object data"
+        },
+        "gateway": {
+          "$ref": "#/$defs/GatewaySpec",
+          "description": "Configuration for the Ceph RADOS Gateway (RGW) daemon providing the S3/Swift API"
+        },
+        "zone": {
+          "type": "object",
+          "description": "Ceph multi-site zone configuration for replication across geographic regions",
+          "properties": {
+            "name": {
+              "type": "string",
+              "description": "Name of the CephObjectZone CRD resource this store belongs to"
+            }
+          }
+        },
+        "preservePoolsOnDelete": {
+          "type": "boolean",
+          "description": "If true, Ceph pools are preserved when the CephObjectStore CRD is deleted. If false, pools and all data are deleted.",
+          "default": false
+        },
+        "healthCheck": {
+          "type": "object",
+          "description": "Configuration for the periodic health check of the object store gateway",
+          "properties": {
+            "bucket": {
+              "type": "object",
+              "description": "Health check settings using a dedicated bucket probe",
+              "properties": {
+                "disabled": {
+                  "type": "boolean",
+                  "description": "Whether the bucket health check is disabled"
+                },
+                "interval": {
+                  "type": "string",
+                  "description": "Interval for health check requests (e.g. 60s)"
+                }
+              }
+            }
+          }
+        },
+        "security": {
+          "type": "object",
+          "description": "KMS and SSE configuration for server-side encryption of stored objects",
+          "properties": {
+            "kms": {
+              "type": "object",
+              "description": "Key Management Service configuration for server-side encryption",
+              "properties": {
+                "connectionDetails": {
+                  "type": "object",
+                  "description": "KMS backend connection parameters",
+                  "additionalProperties": {
+                    "type": "string"
+                  }
+                },
+                "tokenSecretName": {
+                  "type": "string",
+                  "description": "Name of the Kubernetes Secret containing the KMS authentication token"
+                }
+              }
+            },
+            "s3": {
+              "type": "object",
+              "description": "S3-style SSE configuration",
+              "properties": {
+                "connectionDetails": {
+                  "type": "object",
+                  "description": "S3 SSE connection parameters",
+                  "additionalProperties": {
+                    "type": "string"
+                  }
+                },
+                "tokenSecretName": {
+                  "type": "string",
+                  "description": "Kubernetes Secret name for S3 SSE credentials"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "GatewaySpec": {
+      "type": "object",
+      "description": "Configuration for the Ceph RADOS Gateway (RGW) daemon providing S3 and Swift object storage endpoints",
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "Gateway type, currently only s3 is supported",
+          "enum": ["s3"]
+        },
+        "sslCertificateRef": {
+          "type": "string",
+          "description": "Name of a Kubernetes Secret containing the TLS certificate and key for HTTPS access to the gateway"
+        },
+        "caBundleRef": {
+          "type": "string",
+          "description": "Name of a Kubernetes ConfigMap containing a CA bundle for validating client certificates"
+        },
+        "port": {
+          "type": "integer",
+          "description": "HTTP port for the RGW service",
+          "minimum": 1,
+          "maximum": 65535,
+          "default": 80
+        },
+        "securePort": {
+          "type": "integer",
+          "description": "HTTPS port for the RGW service when TLS is configured",
+          "minimum": 1,
+          "maximum": 65535
+        },
+        "instances": {
+          "type": "integer",
+          "description": "Number of RGW daemon instances to run. More instances provide higher throughput and availability.",
+          "minimum": 1,
+          "default": 1
+        },
+        "annotations": {
+          "type": "object",
+          "description": "Kubernetes annotations to apply to the RGW pod and service",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "labels": {
+          "type": "object",
+          "description": "Kubernetes labels to apply to the RGW pods",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "resources": {
+          "type": "object",
+          "description": "CPU and memory resource requests and limits for RGW daemon pods",
+          "properties": {
+            "requests": {
+              "type": "object",
+              "properties": {
+                "cpu": { "type": "string", "description": "CPU request" },
+                "memory": { "type": "string", "description": "Memory request" }
+              }
+            },
+            "limits": {
+              "type": "object",
+              "properties": {
+                "cpu": { "type": "string", "description": "CPU limit" },
+                "memory": { "type": "string", "description": "Memory limit" }
+              }
+            }
+          }
+        },
+        "priorityClassName": {
+          "type": "string",
+          "description": "Priority class for RGW daemon pods"
+        },
+        "placement": {
+          "type": "object",
+          "description": "Kubernetes pod placement settings for RGW daemons"
+        },
+        "externalRgwEndpoints": {
+          "type": "array",
+          "description": "Endpoints of external RGW daemons when using an external Ceph cluster",
+          "items": {
+            "type": "object",
+            "properties": {
+              "ip": {
+                "type": "string",
+                "description": "IP address of the external RGW endpoint",
+                "format": "ipv4"
+              }
+            }
+          }
+        }
+      }
+    },
+    "PoolSpec": {
+      "type": "object",
+      "description": "Configuration for a Ceph pool used by the object store",
+      "properties": {
+        "failureDomain": {
+          "type": "string",
+          "description": "Failure domain for pool data placement",
+          "enum": ["osd", "host", "chassis", "rack", "row", "pdu", "pod", "room", "datacenter", "zone", "region", "root"]
+        },
+        "deviceClass": {
+          "type": "string",
+          "description": "OSD device class for pool placement",
+          "enum": ["hdd", "ssd", "nvme"]
+        },
+        "replicated": {
+          "type": "object",
+          "description": "Replicated pool configuration",
+          "required": ["size"],
+          "properties": {
+            "size": {
+              "type": "integer",
+              "description": "Number of data replicas",
+              "minimum": 1,
+              "maximum": 10
+            },
+            "requireSafeReplicaSize": {
+              "type": "boolean",
+              "description": "Enforce minimum safe replica count"
+            }
+          }
+        },
+        "erasureCoded": {
+          "type": "object",
+          "description": "Erasure coded pool configuration",
+          "required": ["dataChunks", "codingChunks"],
+          "properties": {
+            "dataChunks": {
+              "type": "integer",
+              "description": "Number of data chunks per stripe",
+              "minimum": 2
+            },
+            "codingChunks": {
+              "type": "integer",
+              "description": "Number of parity chunks per stripe",
+              "minimum": 1
+            }
+          }
+        },
+        "parameters": {
+          "type": "object",
+          "description": "Additional Ceph pool parameters",
+          "additionalProperties": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "CephObjectStoreUserSpec": {
+      "type": "object",
+      "description": "Specification for a CephObjectStoreUser defining access credentials and capabilities for the object store",
+      "required": ["store", "displayName"],
+      "properties": {
+        "store": {
+          "type": "string",
+          "description": "Name of the CephObjectStore resource this user belongs to"
+        },
+        "displayName": {
+          "type": "string",
+          "description": "Human-readable display name for the object store user"
+        },
+        "capabilities": {
+          "$ref": "#/$defs/ObjectUserCapabilities",
+          "description": "S3/Swift capability grants controlling what operations the user can perform"
+        },
+        "quotas": {
+          "$ref": "#/$defs/ObjectUserQuota",
+          "description": "Storage quota limits for this user"
+        },
+        "clusterNamespace": {
+          "type": "string",
+          "description": "Namespace of the Ceph cluster if different from the user resource namespace"
+        }
+      }
+    },
+    "ObjectUserCapabilities": {
+      "type": "object",
+      "description": "Ceph RGW user capability grants for S3 and admin API access control",
+      "properties": {
+        "user": {
+          "type": "string",
+          "description": "Permission level for user management operations",
+          "enum": ["*", "read", "write", "read,write"]
+        },
+        "users": {
+          "type": "string",
+          "description": "Permission level for users listing operations",
+          "enum": ["*", "read", "write", "read,write"]
+        },
+        "buckets": {
+          "type": "string",
+          "description": "Permission level for bucket administration operations",
+          "enum": ["*", "read", "write", "read,write"]
+        },
+        "metadata": {
+          "type": "string",
+          "description": "Permission level for object metadata operations",
+          "enum": ["*", "read", "write", "read,write"]
+        },
+        "usage": {
+          "type": "string",
+          "description": "Permission level for usage statistics operations",
+          "enum": ["*", "read", "write", "read,write"]
+        },
+        "zone": {
+          "type": "string",
+          "description": "Permission level for zone configuration operations",
+          "enum": ["*", "read", "write", "read,write"]
+        }
+      }
+    },
+    "ObjectUserQuota": {
+      "type": "object",
+      "description": "Storage quota limits for a CephObjectStoreUser",
+      "properties": {
+        "maxBuckets": {
+          "type": "integer",
+          "description": "Maximum number of buckets this user can create. Set to -1 for unlimited.",
+          "minimum": -1
+        },
+        "maxSize": {
+          "type": "string",
+          "description": "Maximum total storage size for this user (e.g. 10Gi, 1Ti)",
+          "pattern": "^[0-9]+(\\.[0-9]+)?(Ki|Mi|Gi|Ti|Pi|Ei|K|M|G|T|P|E)?$"
+        },
+        "maxSizeBytes": {
+          "type": "integer",
+          "description": "Maximum storage size in bytes. Set to -1 for unlimited.",
+          "minimum": -1
+        },
+        "maxObjects": {
+          "type": "integer",
+          "description": "Maximum number of objects this user can store. Set to -1 for unlimited.",
+          "minimum": -1
+        }
+      }
+    },
+    "CephObjectStoreStatus": {
+      "type": "object",
+      "description": "Observed state of the CephObjectStore as reported by the Rook operator",
+      "properties": {
+        "phase": {
+          "type": "string",
+          "description": "Current lifecycle phase of the object store",
+          "enum": ["Creating", "Ready", "Deleting", "Error", "Progressing"]
+        },
+        "conditions": {
+          "type": "array",
+          "description": "Status conditions for the object store",
+          "items": {
+            "$ref": "#/$defs/Condition"
+          }
+        },
+        "info": {
+          "type": "object",
+          "description": "Additional status information including endpoint URLs",
+          "properties": {
+            "endpoint": {
+              "type": "string",
+              "description": "HTTP endpoint URL for the RGW service"
+            },
+            "secureEndpoint": {
+              "type": "string",
+              "description": "HTTPS endpoint URL for the RGW service when TLS is configured"
+            }
+          }
+        }
+      }
+    },
+    "Condition": {
+      "type": "object",
+      "description": "A Kubernetes-style condition for the object store resource",
+      "required": ["type", "status"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "Type of condition"
+        },
+        "status": {
+          "type": "string",
+          "description": "Status of the condition",
+          "enum": ["True", "False", "Unknown"]
+        },
+        "reason": {
+          "type": "string",
+          "description": "Machine-readable reason for the condition status"
+        },
+        "message": {
+          "type": "string",
+          "description": "Human-readable description of why the condition is in this state"
+        },
+        "lastTransitionTime": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Time when this condition last transitioned"
+        }
+      }
+    }
+  }
+}

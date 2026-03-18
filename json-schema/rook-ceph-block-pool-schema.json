@@ -1,0 +1,325 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://rook.io/schemas/rook/ceph-block-pool.json",
+  "title": "Rook CephBlockPool",
+  "description": "Schema for the Rook CephBlockPool Custom Resource Definition, which provisions Ceph RADOS Block Device (RBD) pools on Kubernetes. CephBlockPool defines the replication or erasure coding configuration, failure domain, device class, and mirroring settings for a Ceph block storage pool.",
+  "type": "object",
+  "required": ["apiVersion", "kind", "metadata", "spec"],
+  "properties": {
+    "apiVersion": {
+      "type": "string",
+      "description": "Kubernetes API version for the CephBlockPool resource",
+      "const": "ceph.rook.io/v1"
+    },
+    "kind": {
+      "type": "string",
+      "description": "Kubernetes resource kind, always CephBlockPool",
+      "const": "CephBlockPool"
+    },
+    "metadata": {
+      "$ref": "#/$defs/ObjectMeta"
+    },
+    "spec": {
+      "$ref": "#/$defs/CephBlockPoolSpec"
+    },
+    "status": {
+      "$ref": "#/$defs/CephBlockPoolStatus"
+    }
+  },
+  "$defs": {
+    "ObjectMeta": {
+      "type": "object",
+      "description": "Kubernetes object metadata",
+      "required": ["name"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Name of the CephBlockPool resource, unique within its namespace",
+          "minLength": 1,
+          "maxLength": 253
+        },
+        "namespace": {
+          "type": "string",
+          "description": "Kubernetes namespace where the pool resource is deployed, must match the Rook operator namespace",
+          "minLength": 1,
+          "maxLength": 63
+        },
+        "labels": {
+          "type": "object",
+          "description": "Key-value labels for organizing and selecting Kubernetes resources",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "annotations": {
+          "type": "object",
+          "description": "Key-value annotations for storing non-identifying metadata",
+          "additionalProperties": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "CephBlockPoolSpec": {
+      "type": "object",
+      "description": "Specification for the CephBlockPool defining replication, erasure coding, and pool settings",
+      "properties": {
+        "failureDomain": {
+          "type": "string",
+          "description": "The failure domain that Ceph should use to spread data across for fault tolerance. Common values are host, rack, or osd.",
+          "enum": ["osd", "host", "chassis", "rack", "row", "pdu", "pod", "room", "datacenter", "zone", "region", "root"]
+        },
+        "deviceClass": {
+          "type": "string",
+          "description": "The device class the OSD backing this pool should belong to. Typical values are hdd, ssd, or nvme.",
+          "enum": ["hdd", "ssd", "nvme"]
+        },
+        "replicated": {
+          "$ref": "#/$defs/ReplicatedSpec",
+          "description": "Replicated pool configuration for data redundancy through replication"
+        },
+        "erasureCoded": {
+          "$ref": "#/$defs/ErasureCodedSpec",
+          "description": "Erasure coded pool configuration for space-efficient data protection"
+        },
+        "parameters": {
+          "type": "object",
+          "description": "Key-value parameters to set on the pool, passed directly to Ceph's pool configuration",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "mirroring": {
+          "$ref": "#/$defs/MirroringSpec",
+          "description": "Pool mirroring configuration for replicating data to a remote Ceph cluster"
+        },
+        "quotas": {
+          "$ref": "#/$defs/QuotaSpec",
+          "description": "Storage quota settings to limit pool capacity or object count"
+        },
+        "compressionMode": {
+          "type": "string",
+          "description": "Inline compression mode for objects stored in the pool",
+          "enum": ["none", "passive", "aggressive", "force"]
+        },
+        "enableRBDStats": {
+          "type": "boolean",
+          "description": "Enable per-image RBD statistics reporting for block devices in this pool"
+        },
+        "name": {
+          "type": "string",
+          "description": "Optional custom name for the Ceph pool. If not set, the pool name defaults to the CephBlockPool resource name."
+        }
+      }
+    },
+    "ReplicatedSpec": {
+      "type": "object",
+      "description": "Configuration for a replicated Ceph pool that maintains multiple copies of data",
+      "required": ["size"],
+      "properties": {
+        "size": {
+          "type": "integer",
+          "description": "Number of copies of the data stored in the pool for redundancy. Minimum of 1, recommended minimum of 3 for production.",
+          "minimum": 1,
+          "maximum": 10
+        },
+        "targetSizeRatio": {
+          "type": "number",
+          "description": "Fraction of the cluster capacity allocated to this pool for capacity planning purposes",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "requireSafeReplicaSize": {
+          "type": "boolean",
+          "description": "If true, Rook will raise an error if the pool replication size is less than 3, preventing unsafe single-replica pools",
+          "default": true
+        },
+        "replicasPerFailureDomain": {
+          "type": "integer",
+          "description": "Number of replicas per failure domain. Used to define sub-failure domains when replicating across hosts within a rack.",
+          "minimum": 1
+        },
+        "subFailureDomain": {
+          "type": "string",
+          "description": "Name of the sub-failure domain. Must be a child of the failureDomain setting."
+        },
+        "hybridStorage": {
+          "type": "object",
+          "description": "Defines where primary and replica OSD data is placed across different device classes",
+          "required": ["primaryDeviceClass", "secondaryDeviceClass"],
+          "properties": {
+            "primaryDeviceClass": {
+              "type": "string",
+              "description": "Device class for primary OSD (e.g. nvme for fast reads)"
+            },
+            "secondaryDeviceClass": {
+              "type": "string",
+              "description": "Device class for secondary OSD replicas (e.g. hdd for bulk storage)"
+            }
+          }
+        }
+      }
+    },
+    "ErasureCodedSpec": {
+      "type": "object",
+      "description": "Configuration for an erasure-coded Ceph pool that uses coding to protect against data loss with less overhead than full replication",
+      "required": ["dataChunks", "codingChunks"],
+      "properties": {
+        "dataChunks": {
+          "type": "integer",
+          "description": "Number of data chunks per erasure-coded stripe. Data is split across this many OSDs.",
+          "minimum": 2
+        },
+        "codingChunks": {
+          "type": "integer",
+          "description": "Number of coding (parity) chunks per erasure-coded stripe. The pool can tolerate this many OSD failures.",
+          "minimum": 1
+        },
+        "algorithm": {
+          "type": "string",
+          "description": "Erasure code algorithm to use. Default is jerasure. Options include jerasure, isa, lrc, shec, and clay.",
+          "enum": ["jerasure", "isa", "lrc", "shec", "clay"]
+        }
+      }
+    },
+    "MirroringSpec": {
+      "type": "object",
+      "description": "Configuration for mirroring pool data to a remote Ceph cluster for disaster recovery",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "description": "Whether mirroring is enabled for this pool"
+        },
+        "mode": {
+          "type": "string",
+          "description": "Mirroring mode. image mirrors individual RBD images; pool mirrors the entire pool.",
+          "enum": ["image", "pool"]
+        },
+        "snapshotSchedules": {
+          "type": "array",
+          "description": "Schedule for automatic snapshot creation used for mirroring",
+          "items": {
+            "type": "object",
+            "properties": {
+              "interval": {
+                "type": "string",
+                "description": "Interval at which snapshots are taken (e.g. 24h, 1d, 1w)"
+              },
+              "startTime": {
+                "type": "string",
+                "description": "Start time for the snapshot schedule in ISO 8601 format"
+              }
+            }
+          }
+        },
+        "peers": {
+          "type": "object",
+          "description": "Configuration for the remote Ceph cluster peer",
+          "properties": {
+            "secretNames": {
+              "type": "array",
+              "description": "List of Kubernetes Secret names containing bootstrap peer tokens for the remote cluster",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "QuotaSpec": {
+      "type": "object",
+      "description": "Storage quota limits for the Ceph pool",
+      "properties": {
+        "maxBytes": {
+          "type": "integer",
+          "description": "Maximum number of bytes allowed in the pool. Set to 0 for unlimited.",
+          "minimum": 0
+        },
+        "maxObjects": {
+          "type": "integer",
+          "description": "Maximum number of objects allowed in the pool. Set to 0 for unlimited.",
+          "minimum": 0
+        },
+        "maxSize": {
+          "type": "string",
+          "description": "Maximum size of the pool expressed as a human-readable string (e.g. 10Gi, 1Ti)",
+          "pattern": "^[0-9]+(\\.[0-9]+)?(Ki|Mi|Gi|Ti|Pi|Ei|K|M|G|T|P|E)?$"
+        }
+      }
+    },
+    "CephBlockPoolStatus": {
+      "type": "object",
+      "description": "Observed state of the CephBlockPool as reported by the Rook operator",
+      "properties": {
+        "phase": {
+          "type": "string",
+          "description": "Current lifecycle phase of the block pool",
+          "enum": ["Creating", "Ready", "Deleting", "Error", "Progressing"]
+        },
+        "conditions": {
+          "type": "array",
+          "description": "Conditions representing the current state of the block pool",
+          "items": {
+            "$ref": "#/$defs/Condition"
+          }
+        },
+        "mirroringStatus": {
+          "type": "object",
+          "description": "Mirroring status information from the Ceph daemon",
+          "properties": {
+            "lastChecked": {
+              "type": "string",
+              "format": "date-time",
+              "description": "Time of the last mirroring status check"
+            },
+            "summary": {
+              "type": "object",
+              "description": "Summary of mirroring health and daemon status"
+            }
+          }
+        },
+        "snapshotScheduleStatus": {
+          "type": "object",
+          "description": "Status of configured snapshot schedules",
+          "properties": {
+            "lastChecked": {
+              "type": "string",
+              "format": "date-time",
+              "description": "Time of the last snapshot schedule status check"
+            }
+          }
+        }
+      }
+    },
+    "Condition": {
+      "type": "object",
+      "description": "A Kubernetes-style condition representing a specific aspect of the resource state",
+      "required": ["type", "status"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "Type of condition such as Ready or Progressing"
+        },
+        "status": {
+          "type": "string",
+          "description": "Status of the condition",
+          "enum": ["True", "False", "Unknown"]
+        },
+        "reason": {
+          "type": "string",
+          "description": "Short machine-readable reason for the condition status"
+        },
+        "message": {
+          "type": "string",
+          "description": "Human-readable description of why the condition is in this state"
+        },
+        "lastTransitionTime": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Time when the condition last transitioned"
+        }
+      }
+    }
+  }
+}

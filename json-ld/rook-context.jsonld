@@ -1,0 +1,165 @@
+{
+  "@context": {
+    "@version": 1.1,
+    "rook": "https://rook.io/vocab/",
+    "schema": "https://schema.org/",
+    "xsd": "http://www.w3.org/2001/XMLSchema#",
+    "dcterms": "http://purl.org/dc/terms/",
+    "k8s": "https://kubernetes.io/vocab/",
+
+    "CephCluster": {
+      "@id": "rook:CephCluster",
+      "@context": {
+        "name": {
+          "@id": "schema:name"
+        },
+        "namespace": {
+          "@id": "k8s:namespace"
+        },
+        "dataDirHostPath": {
+          "@id": "rook:dataDirHostPath"
+        },
+        "cephVersion": {
+          "@id": "rook:cephVersion"
+        },
+        "network": {
+          "@id": "rook:network"
+        },
+        "storage": {
+          "@id": "rook:storage"
+        },
+        "mon": {
+          "@id": "rook:mon"
+        },
+        "mgr": {
+          "@id": "rook:mgr"
+        },
+        "dashboard": {
+          "@id": "rook:dashboard"
+        },
+        "monitoring": {
+          "@id": "rook:monitoring"
+        }
+      }
+    },
+
+    "CephBlockPool": {
+      "@id": "rook:CephBlockPool",
+      "@context": {
+        "name": {
+          "@id": "schema:name"
+        },
+        "namespace": {
+          "@id": "k8s:namespace"
+        },
+        "failureDomain": {
+          "@id": "rook:failureDomain"
+        },
+        "deviceClass": {
+          "@id": "rook:deviceClass"
+        },
+        "replicated": {
+          "@id": "rook:replicated"
+        },
+        "erasureCoded": {
+          "@id": "rook:erasureCoded"
+        },
+        "mirroring": {
+          "@id": "rook:mirroring"
+        }
+      }
+    },
+
+    "CephFilesystem": {
+      "@id": "rook:CephFilesystem",
+      "@context": {
+        "name": {
+          "@id": "schema:name"
+        },
+        "namespace": {
+          "@id": "k8s:namespace"
+        },
+        "metadataPool": {
+          "@id": "rook:metadataPool"
+        },
+        "dataPools": {
+          "@id": "rook:dataPools",
+          "@container": "@set"
+        },
+        "metadataServer": {
+          "@id": "rook:metadataServer"
+        },
+        "preserveFilesystemOnDelete": {
+          "@id": "rook:preserveFilesystemOnDelete",
+          "@type": "xsd:boolean"
+        }
+      }
+    },
+
+    "CephObjectStore": {
+      "@id": "rook:CephObjectStore",
+      "@context": {
+        "name": {
+          "@id": "schema:name"
+        },
+        "namespace": {
+          "@id": "k8s:namespace"
+        },
+        "metadataPool": {
+          "@id": "rook:metadataPool"
+        },
+        "dataPool": {
+          "@id": "rook:dataPool"
+        },
+        "gateway": {
+          "@id": "rook:gateway"
+        },
+        "zone": {
+          "@id": "rook:zone"
+        }
+      }
+    },
+
+    "CephObjectStoreUser": {
+      "@id": "rook:CephObjectStoreUser",
+      "@context": {
+        "name": {
+          "@id": "schema:name"
+        },
+        "store": {
+          "@id": "rook:objectStore"
+        },
+        "displayName": {
+          "@id": "schema:alternateName"
+        },
+        "capabilities": {
+          "@id": "rook:capabilities"
+        },
+        "quotas": {
+          "@id": "rook:quotas"
+        }
+      }
+    },
+
+    "StorageClassDeviceSet": {
+      "@id": "rook:StorageClassDeviceSet",
+      "@context": {
+        "name": {
+          "@id": "schema:name"
+        },
+        "count": {
+          "@id": "schema:quantity",
+          "@type": "xsd:integer"
+        },
+        "portable": {
+          "@id": "rook:portable",
+          "@type": "xsd:boolean"
+        },
+        "volumeClaimTemplates": {
+          "@id": "k8s:volumeClaimTemplate",
+          "@container": "@set"
+        }
+      }
+    }
+  }
+}
