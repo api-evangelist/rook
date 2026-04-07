@@ -38,18 +38,14 @@ tags:
     description: >-
       S3-compatible bucket creation, listing, deletion, and configuration
       operations on Ceph Object Storage provisioned by Rook
-  - name: Objects
-    description: >-
-      S3-compatible object upload, download, listing, deletion, and
-      metadata operations within Ceph Object Storage buckets
   - name: Multipart Uploads
     description: >-
       S3-compatible multipart upload operations for large objects,
       including initiation, part upload, completion, and abort
-  - name: Access Control
+  - name: Objects
     description: >-
-      S3-compatible bucket and object ACL management for controlling
-      access to Ceph Object Storage resources
+      S3-compatible object upload, download, listing, deletion, and
+      metadata operations within Ceph Object Storage buckets
 security:
   - s3Auth: []
 paths:
