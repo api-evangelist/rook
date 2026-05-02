@@ -1,0 +1,48 @@
+{
+  "name": "CephFilesystem",
+  "description": "Rook CephFilesystem Custom Resource for provisioning shared POSIX-compliant file storage backed by CephFS, supporting ReadWriteMany access modes for Kubernetes workloads",
+  "fields": [
+    {
+      "name": "apiVersion",
+      "type": "string",
+      "description": "Kubernetes API version, always ceph.rook.io/v1",
+      "required": true
+    },
+    {
+      "name": "kind",
+      "type": "string",
+      "description": "Resource kind, always CephFilesystem",
+      "required": true
+    },
+    {
+      "name": "metadata",
+      "type": "object",
+      "description": "Kubernetes object metadata",
+      "required": true,
+      "fields": [
+        { "name": "name", "type": "string", "description": "Filesystem name" },
+        { "name": "namespace", "type": "string", "description": "Kubernetes namespace" }
+      ]
+    },
+    {
+      "name": "spec",
+      "type": "object",
+      "description": "CephFilesystem configuration specification",
+      "required": true,
+      "fields": [
+        { "name": "metadataPool", "type": "object", "description": "Ceph pool for CephFS metadata" },
+        { "name": "dataPools", "type": "array", "description": "One or more Ceph pools for CephFS data storage" },
+        { "name": "metadataServer", "type": "object", "description": "MDS server configuration (activeCount, activeStandby)" },
+        { "name": "mirroring", "type": "object", "description": "CephFS mirroring configuration for disaster recovery" }
+      ]
+    },
+    {
+      "name": "status",
+      "type": "object",
+      "description": "CephFilesystem runtime status",
+      "fields": [
+        { "name": "phase", "type": "string", "description": "Filesystem phase: Ready, Progressing, Error" }
+      ]
+    }
+  ]
+}

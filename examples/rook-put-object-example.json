@@ -1,0 +1,22 @@
+{
+  "request": {
+    "method": "PUT",
+    "url": "http://rook-ceph-rgw-my-store.rook-ceph.svc/app-data/uploads/report-2026-q2.pdf",
+    "headers": {
+      "Authorization": "AWS4-HMAC-SHA256 Credential=ACCESS_KEY/20260502/us-east-1/s3/aws4_request, SignedHeaders=content-type;host;x-amz-date, Signature=SIGNATURE",
+      "x-amz-date": "20260502T120000Z",
+      "Content-Type": "application/pdf",
+      "Content-Length": "204800",
+      "x-amz-meta-author": "analytics-service",
+      "x-amz-meta-created-by": "report-generator-v2"
+    },
+    "body": "<binary PDF content>"
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "ETag": "\"e10adc3949ba59abbe56e057f20f883e\"",
+      "x-amz-request-id": "tx000000000000000000001-0064abcd12-rook-default"
+    }
+  }
+}

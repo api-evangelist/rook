@@ -1,0 +1,41 @@
+{
+  "request": {
+    "method": "GET",
+    "url": "http://rook-ceph-rgw-my-store.rook-ceph.svc/app-data?list-type=2&prefix=uploads/&max-keys=100",
+    "headers": {
+      "Authorization": "AWS4-HMAC-SHA256 Credential=ACCESS_KEY/20260502/us-east-1/s3/aws4_request, SignedHeaders=host;x-amz-date, Signature=SIGNATURE",
+      "x-amz-date": "20260502T000000Z"
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/xml"
+    },
+    "body": {
+      "ListBucketResult": {
+        "Name": "app-data",
+        "Prefix": "uploads/",
+        "Delimiter": "",
+        "MaxKeys": 100,
+        "IsTruncated": false,
+        "Contents": [
+          {
+            "Key": "uploads/report-2026-q1.pdf",
+            "LastModified": "2026-04-01T10:00:00.000Z",
+            "ETag": "\"d41d8cd98f00b204e9800998ecf8427e\"",
+            "Size": 204800,
+            "StorageClass": "STANDARD"
+          },
+          {
+            "Key": "uploads/data-export.csv",
+            "LastModified": "2026-04-15T16:30:00.000Z",
+            "ETag": "\"a87ff679a2f3e71d9181a67b7542122c\"",
+            "Size": 51200,
+            "StorageClass": "STANDARD"
+          }
+        ]
+      }
+    }
+  }
+}

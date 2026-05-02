@@ -1,0 +1,50 @@
+{
+  "name": "CephObjectStore",
+  "description": "Rook CephObjectStore Custom Resource for provisioning S3-compatible and Swift-compatible Ceph RADOS Gateway (RGW) endpoints on Kubernetes",
+  "fields": [
+    {
+      "name": "apiVersion",
+      "type": "string",
+      "description": "Kubernetes API version, always ceph.rook.io/v1",
+      "required": true
+    },
+    {
+      "name": "kind",
+      "type": "string",
+      "description": "Resource kind: CephObjectStore or CephObjectStoreUser",
+      "required": true
+    },
+    {
+      "name": "metadata",
+      "type": "object",
+      "description": "Kubernetes object metadata",
+      "required": true,
+      "fields": [
+        { "name": "name", "type": "string", "description": "Object store name" },
+        { "name": "namespace", "type": "string", "description": "Kubernetes namespace" }
+      ]
+    },
+    {
+      "name": "spec",
+      "type": "object",
+      "description": "CephObjectStore configuration specification",
+      "required": true,
+      "fields": [
+        { "name": "metadataPool", "type": "object", "description": "Ceph pool configuration for object store metadata" },
+        { "name": "dataPool", "type": "object", "description": "Ceph pool configuration for object data storage" },
+        { "name": "gateway", "type": "object", "description": "RGW gateway configuration (port, instances, placement)" },
+        { "name": "zone", "type": "object", "description": "Ceph zone configuration for multi-site replication" },
+        { "name": "hosting", "type": "object", "description": "Bucket hosting configuration (advertiseEndpoint)" }
+      ]
+    },
+    {
+      "name": "status",
+      "type": "object",
+      "description": "CephObjectStore runtime status",
+      "fields": [
+        { "name": "phase", "type": "string", "description": "Object store phase: Ready, Progressing, Error" },
+        { "name": "info", "type": "object", "description": "Endpoint and connection information" }
+      ]
+    }
+  ]
+}

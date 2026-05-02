@@ -1,0 +1,40 @@
+{
+  "request": {
+    "method": "GET",
+    "url": "http://rook-ceph-rgw-my-store.rook-ceph.svc/",
+    "headers": {
+      "Authorization": "AWS4-HMAC-SHA256 Credential=ACCESS_KEY/20260502/us-east-1/s3/aws4_request, SignedHeaders=host;x-amz-date, Signature=SIGNATURE",
+      "x-amz-date": "20260502T000000Z"
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/xml"
+    },
+    "body": {
+      "ListAllMyBucketsResult": {
+        "Owner": {
+          "ID": "ceph-user-123abc",
+          "DisplayName": "app-service-account"
+        },
+        "Buckets": {
+          "Bucket": [
+            {
+              "Name": "app-data",
+              "CreationDate": "2026-01-15T08:30:00.000Z"
+            },
+            {
+              "Name": "backups",
+              "CreationDate": "2026-02-20T14:00:00.000Z"
+            },
+            {
+              "Name": "media-assets",
+              "CreationDate": "2026-03-10T09:15:00.000Z"
+            }
+          ]
+        }
+      }
+    }
+  }
+}

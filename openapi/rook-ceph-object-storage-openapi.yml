@@ -52,7 +52,7 @@ paths:
   /:
     get:
       operationId: listBuckets
-      summary: Rook List all buckets
+      summary: List All Buckets
       description: >-
         Returns a list of all S3 buckets owned by the authenticated user in
         the Ceph Object Storage gateway. The response includes bucket names
@@ -79,7 +79,7 @@ paths:
       - $ref: '#/components/parameters/BucketParam'
     put:
       operationId: createBucket
-      summary: Rook Create a bucket
+      summary: Create a Bucket
       description: >-
         Creates a new S3 bucket in the Ceph Object Storage gateway with the
         specified name. The bucket is created in the object store backing
@@ -108,7 +108,7 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
     head:
       operationId: headBucket
-      summary: Rook Check bucket existence and access
+      summary: Check Bucket Existence and Access
       description: >-
         Checks whether a bucket exists and whether the caller has
         permission to access it. Returns HTTP 200 if the bucket exists and
@@ -125,7 +125,7 @@ paths:
           description: Bucket does not exist
     delete:
       operationId: deleteBucket
-      summary: Rook Delete a bucket
+      summary: Delete a Bucket
       description: >-
         Deletes an empty S3 bucket from the Ceph Object Storage gateway.
         The bucket must be empty before it can be deleted. Returns HTTP 409
@@ -149,7 +149,7 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
     get:
       operationId: listObjects
-      summary: Rook List objects in a bucket
+      summary: List Objects in a Bucket
       description: >-
         Returns a list of objects stored in the specified S3 bucket. Supports
         filtering by prefix, delimiter for hierarchical listings, and
@@ -224,7 +224,7 @@ paths:
       - $ref: '#/components/parameters/KeyParam'
     put:
       operationId: putObject
-      summary: Rook Upload an object
+      summary: Upload an Object
       description: >-
         Uploads an object to the specified key in the S3 bucket. The object
         data is included in the request body. Optional request headers allow
@@ -256,7 +256,7 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
     get:
       operationId: getObject
-      summary: Rook Download an object
+      summary: Download an Object
       description: >-
         Downloads the data and metadata of an object from the specified key
         in the S3 bucket. Supports range requests for partial content
@@ -311,7 +311,7 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
     head:
       operationId: headObject
-      summary: Rook Get object metadata
+      summary: Get Object Metadata
       description: >-
         Retrieves the metadata of an object without downloading the object
         data. Returns HTTP headers containing content type, content length,
@@ -326,7 +326,7 @@ paths:
           description: Object or bucket not found
     delete:
       operationId: deleteObject
-      summary: Rook Delete an object
+      summary: Delete an Object
       description: >-
         Deletes the specified object from the S3 bucket. If versioning is
         enabled, this creates a delete marker rather than permanently
@@ -348,7 +348,7 @@ paths:
       - $ref: '#/components/parameters/BucketParam'
     get:
       operationId: listMultipartUploads
-      summary: Rook List in-progress multipart uploads
+      summary: List In-Progress Multipart Uploads
       description: >-
         Returns a list of in-progress multipart uploads for the specified
         bucket. Useful for identifying and cleaning up incomplete multipart
@@ -381,7 +381,7 @@ paths:
       - $ref: '#/components/parameters/KeyParam'
     post:
       operationId: createMultipartUpload
-      summary: Rook Initiate a multipart upload
+      summary: Initiate a Multipart Upload
       description: >-
         Initiates a multipart upload for a large object and returns an
         upload ID that must be used in subsequent part upload and complete

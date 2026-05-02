@@ -1,0 +1,49 @@
+{
+  "name": "CephBlockPool",
+  "description": "Rook CephBlockPool Custom Resource for provisioning Ceph RADOS Block Device (RBD) storage pools used by Kubernetes StorageClasses and PersistentVolumes",
+  "fields": [
+    {
+      "name": "apiVersion",
+      "type": "string",
+      "description": "Kubernetes API version, always ceph.rook.io/v1",
+      "required": true
+    },
+    {
+      "name": "kind",
+      "type": "string",
+      "description": "Resource kind, always CephBlockPool",
+      "required": true
+    },
+    {
+      "name": "metadata",
+      "type": "object",
+      "description": "Kubernetes object metadata",
+      "required": true,
+      "fields": [
+        { "name": "name", "type": "string", "description": "Block pool name" },
+        { "name": "namespace", "type": "string", "description": "Kubernetes namespace" }
+      ]
+    },
+    {
+      "name": "spec",
+      "type": "object",
+      "description": "CephBlockPool configuration specification",
+      "required": true,
+      "fields": [
+        { "name": "failureDomain", "type": "string", "description": "Failure domain for replication (host, osd)" },
+        { "name": "replicated", "type": "object", "description": "Replication configuration (size, targetSizeRatio)" },
+        { "name": "erasureCoded", "type": "object", "description": "Erasure coding configuration (dataChunks, codingChunks)" },
+        { "name": "deviceClass", "type": "string", "description": "OSD device class to target (ssd, hdd, nvme)" },
+        { "name": "parameters", "type": "object", "description": "Additional Ceph pool parameters (compression_mode, pg_num)" }
+      ]
+    },
+    {
+      "name": "status",
+      "type": "object",
+      "description": "CephBlockPool runtime status",
+      "fields": [
+        { "name": "phase", "type": "string", "description": "Pool phase: Ready, Progressing, Error" }
+      ]
+    }
+  ]
+}

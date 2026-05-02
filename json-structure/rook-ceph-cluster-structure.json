@@ -1,0 +1,56 @@
+{
+  "name": "CephCluster",
+  "description": "Rook CephCluster Custom Resource for declaratively managing Ceph storage clusters on Kubernetes",
+  "fields": [
+    {
+      "name": "apiVersion",
+      "type": "string",
+      "description": "Kubernetes API version, always ceph.rook.io/v1",
+      "required": true
+    },
+    {
+      "name": "kind",
+      "type": "string",
+      "description": "Resource kind, always CephCluster",
+      "required": true
+    },
+    {
+      "name": "metadata",
+      "type": "object",
+      "description": "Kubernetes object metadata",
+      "required": true,
+      "fields": [
+        { "name": "name", "type": "string", "description": "Cluster name" },
+        { "name": "namespace", "type": "string", "description": "Kubernetes namespace" }
+      ]
+    },
+    {
+      "name": "spec",
+      "type": "object",
+      "description": "CephCluster configuration specification",
+      "required": true,
+      "fields": [
+        { "name": "cephVersion", "type": "object", "description": "Ceph container image version to deploy" },
+        { "name": "dataDirHostPath", "type": "string", "description": "Host path for storing Ceph configuration and data" },
+        { "name": "mon", "type": "object", "description": "Ceph monitor configuration (count, allowMultiplePerNode)" },
+        { "name": "mgr", "type": "object", "description": "Ceph manager configuration (count, modules)" },
+        { "name": "storage", "type": "object", "description": "Storage scope defining which nodes and devices to use" },
+        { "name": "network", "type": "object", "description": "Network configuration for Ceph cluster communication" },
+        { "name": "dashboard", "type": "object", "description": "Ceph Dashboard configuration (enabled, ssl)" },
+        { "name": "monitoring", "type": "object", "description": "Prometheus monitoring integration settings" },
+        { "name": "placement", "type": "object", "description": "Node placement rules for Ceph daemons" },
+        { "name": "resources", "type": "object", "description": "CPU and memory resource requests and limits for daemons" }
+      ]
+    },
+    {
+      "name": "status",
+      "type": "object",
+      "description": "CephCluster runtime status reported by the Rook operator",
+      "fields": [
+        { "name": "phase", "type": "string", "description": "Cluster phase: Ready, Progressing, Error" },
+        { "name": "message", "type": "string", "description": "Human-readable status message" },
+        { "name": "ceph", "type": "object", "description": "Ceph cluster health and version details" }
+      ]
+    }
+  ]
+}

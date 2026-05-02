@@ -2,21 +2,27 @@ aid: rook
 name: Rook
 description: >-
   Rook is a CNCF graduated cloud-native storage orchestrator for Kubernetes,
-  providing the platform, framework, and support for distributed storage
+  providing the platform, framework, and support for Ceph distributed storage
   systems to natively integrate with cloud-native environments. It automates
   the deployment, configuration, provisioning, scaling, upgrading, and
-  monitoring of storage systems, with primary support for Ceph.
+  monitoring of storage systems through Kubernetes operators and Custom
+  Resource Definitions (CRDs), with primary support for Ceph block storage,
+  shared filesystems, and S3-compatible object storage.
 type: Index
 url: https://raw.githubusercontent.com/api-evangelist/rook/refs/heads/main/apis.yml
 tags:
+  - Block Storage
+  - CNCF
   - Ceph
   - Cloud Native
+  - File Storage
   - Graduated
   - Kubernetes
+  - Object Storage
   - Orchestration
   - Storage
 created: '2025-01-01'
-modified: '2026-03-18'
+modified: '2026-05-02'
 specificationVersion: '0.19'
 apis:
   - aid: rook:rook-ceph-crd-api
@@ -25,8 +31,9 @@ apis:
       Rook extends Kubernetes through Custom Resource Definitions (CRDs) to
       declaratively manage Ceph storage clusters. The CRD API includes
       resources for CephCluster, CephBlockPool, CephFilesystem, CephObjectStore,
-      CephObjectStoreUser, and related storage primitives, enabling operators to
-      configure and manage Ceph storage entirely through Kubernetes manifests.
+      CephObjectStoreUser, CephNFS, CephRBDMirror, and related storage
+      primitives, enabling operators to configure and manage Ceph storage
+      entirely through Kubernetes manifests.
     humanURL: https://rook.io/docs/rook/latest/CRDs/Cluster/ceph-cluster-crd/
     properties:
       - type: Documentation
@@ -35,6 +42,8 @@ apis:
         url: https://rook.io/docs/rook/latest/CRDs/
       - type: JSONSchema
         url: json-schema/rook-ceph-cluster-schema.json
+      - type: JSONStructure
+        url: json-structure/rook-ceph-cluster-structure.json
     tags:
       - Ceph
       - CRD
@@ -59,6 +68,8 @@ apis:
         url: openapi/rook-ceph-object-storage-openapi.yml
       - type: JSONSchema
         url: json-schema/rook-ceph-object-store-schema.json
+      - type: JSONStructure
+        url: json-structure/rook-ceph-object-store-structure.json
     tags:
       - Ceph
       - Object Storage
@@ -81,6 +92,8 @@ apis:
         url: https://rook.io/docs/rook/latest/CRDs/Block-Storage/
       - type: JSONSchema
         url: json-schema/rook-ceph-block-pool-schema.json
+      - type: JSONStructure
+        url: json-structure/rook-ceph-block-pool-structure.json
     tags:
       - Block Storage
       - Ceph
@@ -103,6 +116,8 @@ apis:
         url: https://rook.io/docs/rook/latest/CRDs/Shared-Filesystem/
       - type: JSONSchema
         url: json-schema/rook-ceph-filesystem-schema.json
+      - type: JSONStructure
+        url: json-structure/rook-ceph-filesystem-structure.json
     tags:
       - CephFS
       - File Storage
@@ -118,8 +133,16 @@ common:
     url: json-schema/rook-ceph-filesystem-schema.json
   - type: JSONSchema
     url: json-schema/rook-ceph-object-store-schema.json
+  - type: JSONStructure
+    url: json-structure/rook-ceph-cluster-structure.json
   - type: JSON-LD
     url: json-ld/rook-context.jsonld
+  - type: Vocabulary
+    url: vocabulary/rook-vocabulary.yml
+  - type: Rules
+    url: rules/rook-spectral-rules.yml
+  - type: Capabilities
+    url: capabilities/storage-orchestration.yaml
   - type: Website
     url: https://rook.io
   - type: Documentation
@@ -142,6 +165,8 @@ common:
     url: https://github.com/rook/rook/blob/master/SECURITY.md
   - type: Stack Overflow
     url: https://stackoverflow.com/questions/tagged/rook
+  - type: X
+    url: https://twitter.com/rook_io
 maintainers:
   - FN: Kin Lane
     email: kin@apievangelist.com

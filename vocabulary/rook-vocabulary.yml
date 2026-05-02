@@ -1,0 +1,160 @@
+name: Rook Vocabulary
+description: >-
+  Vocabulary and taxonomy for the Rook cloud-native storage orchestrator for
+  Kubernetes, covering Ceph storage primitives, Kubernetes integration patterns,
+  and operational concepts used in the Rook ecosystem.
+created: '2026-05-02'
+modified: '2026-05-02'
+terms:
+  - term: Rook
+    definition: >-
+      A CNCF graduated open-source cloud-native storage orchestrator for
+      Kubernetes that automates deployment, configuration, and management of
+      Ceph distributed storage.
+    tags:
+      - Core
+      - CNCF
+  - term: CephCluster
+    definition: >-
+      A Kubernetes Custom Resource (CRD) that declaratively defines a Ceph
+      storage cluster managed by the Rook operator, including monitor count,
+      storage scope, and daemon configuration.
+    tags:
+      - CRD
+      - Ceph
+  - term: CephBlockPool
+    definition: >-
+      A Kubernetes CRD that provisions a Ceph RADOS Block Device (RBD) pool,
+      used as the backing store for Kubernetes StorageClasses and
+      PersistentVolumes with ReadWriteOnce access.
+    tags:
+      - CRD
+      - Block Storage
+  - term: CephFilesystem
+    definition: >-
+      A Kubernetes CRD that provisions a CephFS shared filesystem, enabling
+      ReadWriteMany PersistentVolumes for workloads requiring concurrent access
+      from multiple pods.
+    tags:
+      - CRD
+      - File Storage
+  - term: CephObjectStore
+    definition: >-
+      A Kubernetes CRD that provisions a Ceph RADOS Gateway (RGW) providing
+      S3-compatible and Swift-compatible object storage endpoints.
+    tags:
+      - CRD
+      - Object Storage
+  - term: CephObjectStoreUser
+    definition: >-
+      A Kubernetes CRD that creates a Ceph RGW user with access keys stored
+      in a Kubernetes Secret, granting access to the CephObjectStore.
+    tags:
+      - CRD
+      - Authentication
+  - term: RGW
+    definition: >-
+      Ceph RADOS Gateway — the HTTP/REST gateway component that exposes
+      S3-compatible and Swift-compatible object storage APIs. Rook provisions
+      RGW instances via the CephObjectStore CRD.
+    tags:
+      - Ceph
+      - Object Storage
+  - term: RBD
+    definition: >-
+      RADOS Block Device — the Ceph block storage mechanism that provides
+      raw block volumes to Kubernetes nodes via the rbd kernel module or
+      the ceph-csi driver.
+    tags:
+      - Ceph
+      - Block Storage
+  - term: CephFS
+    definition: >-
+      Ceph Filesystem — the distributed POSIX-compliant filesystem provided
+      by Ceph, managed through the CephFilesystem CRD and exposed via
+      the ceph-csi driver or the kernel CephFS client.
+    tags:
+      - Ceph
+      - File Storage
+  - term: Ceph Monitor (Mon)
+    definition: >-
+      A Ceph daemon that maintains the cluster map and quorum. Rook manages
+      monitor count and placement through the CephCluster spec.mon field.
+    tags:
+      - Ceph
+      - Architecture
+  - term: Ceph Manager (Mgr)
+    definition: >-
+      A Ceph daemon providing cluster monitoring, dashboard, and module
+      extensibility. Managed through the CephCluster spec.mgr field.
+    tags:
+      - Ceph
+      - Architecture
+  - term: OSD
+    definition: >-
+      Object Storage Daemon — the Ceph process that stores data on individual
+      disks. Rook automatically provisions OSDs on nodes and devices matching
+      the CephCluster storage scope configuration.
+    tags:
+      - Ceph
+      - Architecture
+  - term: StorageClass
+    definition: >-
+      A Kubernetes resource that references a Rook-managed Ceph pool as the
+      provisioner, enabling dynamic provisioning of PersistentVolumes using
+      the ceph-csi driver.
+    tags:
+      - Kubernetes
+  - term: PersistentVolumeClaim
+    definition: >-
+      A Kubernetes resource used by applications to request storage from a
+      Rook-managed StorageClass. Rook fulfills the claim by dynamically
+      provisioning a Ceph RBD or CephFS volume.
+    tags:
+      - Kubernetes
+  - term: ceph-csi
+    definition: >-
+      The Container Storage Interface driver for Ceph, used by Rook to expose
+      Ceph block (RBD) and filesystem (CephFS) storage to Kubernetes workloads
+      through the CSI standard.
+    tags:
+      - Kubernetes
+      - Integration
+  - term: Operator
+    definition: >-
+      The Rook Kubernetes Operator — a controller running in the cluster that
+      watches CRDs and reconciles the desired state of Ceph storage resources.
+    tags:
+      - Kubernetes
+      - Architecture
+  - term: Toolbox
+    definition: >-
+      A Rook debug pod that provides the ceph CLI and other debugging tools
+      for inspecting cluster health and executing Ceph commands directly
+      against the cluster.
+    tags:
+      - Operations
+  - term: S3-Compatible
+    definition: >-
+      The Ceph Object Storage gateway supports the Amazon S3 API, allowing
+      applications using the AWS SDK or S3-compatible clients to interact
+      with Rook-managed Ceph object storage.
+    tags:
+      - Object Storage
+      - Integration
+  - term: Failure Domain
+    definition: >-
+      The unit of fault isolation used by Ceph for data replication. Common
+      failure domains include host and osd. Configured per CephBlockPool
+      and CephFilesystem data pool.
+    tags:
+      - Architecture
+      - Reliability
+  - term: CRUSH
+    definition: >-
+      Controlled Replication Under Scalable Hashing — the Ceph algorithm for
+      calculating object placement across OSDs based on the cluster topology
+      and failure domains.
+    tags:
+      - Ceph
+      - Architecture

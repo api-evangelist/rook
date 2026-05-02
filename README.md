@@ -1,50 +1,49 @@
 # Rook (rook)
-Rook is a CNCF graduated cloud-native storage orchestrator for Kubernetes, providing the platform, framework, and support for distributed storage systems to natively integrate with cloud-native environments. It automates the deployment, configuration, provisioning, scaling, upgrading, and monitoring of storage systems, with primary support for Ceph.
+Rook is a CNCF graduated cloud-native storage orchestrator for Kubernetes, providing the platform, framework, and support for Ceph distributed storage systems to natively integrate with cloud-native environments. It automates the deployment, configuration, provisioning, scaling, upgrading, and monitoring of storage systems through Kubernetes operators and Custom Resource Definitions (CRDs), with primary support for Ceph block storage, shared filesystems, and S3-compatible object storage.
 
 **URL:** [Visit APIs.json URL](https://raw.githubusercontent.com/api-evangelist/rook/refs/heads/main/apis.yml)
 
 ## Scope
 
-- **Type:** Index 
-- **Position:** Consuming 
-- **Access:** 3rd-Party 
+- **Type:** Index
+- **Position:** Consuming
+- **Access:** 3rd-Party
 
 ## Tags:
 
- - Kubernetes, Storage, Cloud Native, Orchestration, Ceph, Graduated
+ - Block Storage, CNCF, Ceph, Cloud Native, File Storage, Graduated, Kubernetes, Object Storage, Orchestration, Storage
 
 ## Timestamps
 
-- **Created:** 2025-01-01 
-- **Modified:** 2026-03-18 
+- **Created:** 2025-01-01
+- **Modified:** 2026-05-02
 
 ## APIs
 
 ### Rook Ceph Custom Resource API
-Rook extends Kubernetes through Custom Resource Definitions (CRDs) to declaratively manage Ceph storage clusters. The CRD API includes resources for CephCluster, CephBlockPool, CephFilesystem, CephObjectStore, CephObjectStoreUser, and related storage primitives, enabling operators to configure and manage Ceph storage entirely through Kubernetes manifests.
+Rook extends Kubernetes through Custom Resource Definitions (CRDs) to declaratively manage Ceph storage clusters. The CRD API includes resources for CephCluster, CephBlockPool, CephFilesystem, CephObjectStore, CephObjectStoreUser, CephNFS, CephRBDMirror, and related storage primitives, enabling operators to configure and manage Ceph storage entirely through Kubernetes manifests.
 
 **Human URL:** [https://rook.io/docs/rook/latest/CRDs/Cluster/ceph-cluster-crd/](https://rook.io/docs/rook/latest/CRDs/Cluster/ceph-cluster-crd/)
 
-
 #### Tags:
 
- - Kubernetes, CRD, Ceph, Storage, Declarative
+ - Ceph, CRD, Declarative, Kubernetes, Storage
 
 #### Properties
 
 - [Documentation](https://rook.io/docs/rook/latest/CRDs/Cluster/ceph-cluster-crd/)
 - [Reference](https://rook.io/docs/rook/latest/CRDs/)
 - [JSONSchema](json-schema/rook-ceph-cluster-schema.json)
+- [JSONStructure](json-structure/rook-ceph-cluster-structure.json)
 
 ### Rook Ceph Object Storage API
 Rook provisions Ceph Object Storage gateways (RGW) that expose an S3-compatible and Swift-compatible object storage API. Applications can interact with Ceph Object Storage using standard S3 API clients, and Rook manages the lifecycle of the object store, buckets, and user credentials through Kubernetes CRDs.
 
 **Human URL:** [https://rook.io/docs/rook/latest/CRDs/Object-Storage/ceph-object-store-crd/](https://rook.io/docs/rook/latest/CRDs/Object-Storage/ceph-object-store-crd/)
 
-
 #### Tags:
 
- - Object Storage, S3, Ceph, Swift, Storage
+ - Ceph, Object Storage, S3, Storage, Swift
 
 #### Properties
 
@@ -52,12 +51,12 @@ Rook provisions Ceph Object Storage gateways (RGW) that expose an S3-compatible 
 - [Reference](https://rook.io/docs/rook/latest/CRDs/Object-Storage/)
 - [OpenAPI](openapi/rook-ceph-object-storage-openapi.yml)
 - [JSONSchema](json-schema/rook-ceph-object-store-schema.json)
+- [JSONStructure](json-structure/rook-ceph-object-store-structure.json)
 
 ### Rook Ceph Block Storage API
 Rook provides Ceph block storage (RBD) through Kubernetes StorageClasses and PersistentVolumeClaims. The CephBlockPool CRD and associated StorageClass allow applications to dynamically provision block volumes backed by Ceph RADOS Block Device, supporting ReadWriteOnce access modes for stateful workloads.
 
 **Human URL:** [https://rook.io/docs/rook/latest/CRDs/Block-Storage/ceph-block-pool-crd/](https://rook.io/docs/rook/latest/CRDs/Block-Storage/ceph-block-pool-crd/)
-
 
 #### Tags:
 
@@ -68,22 +67,23 @@ Rook provides Ceph block storage (RBD) through Kubernetes StorageClasses and Per
 - [Documentation](https://rook.io/docs/rook/latest/CRDs/Block-Storage/ceph-block-pool-crd/)
 - [Reference](https://rook.io/docs/rook/latest/CRDs/Block-Storage/)
 - [JSONSchema](json-schema/rook-ceph-block-pool-schema.json)
+- [JSONStructure](json-structure/rook-ceph-block-pool-structure.json)
 
 ### Rook Ceph Shared Filesystem API
 Rook manages CephFilesystem resources to provision shared POSIX-compliant file storage backed by CephFS. Multiple pods can simultaneously read and write to shared filesystem volumes, making it suitable for workloads requiring ReadWriteMany access, configured through the CephFilesystem CRD and a corresponding StorageClass.
 
 **Human URL:** [https://rook.io/docs/rook/latest/CRDs/Shared-Filesystem/ceph-filesystem-crd/](https://rook.io/docs/rook/latest/CRDs/Shared-Filesystem/ceph-filesystem-crd/)
 
-
 #### Tags:
 
- - File Storage, CephFS, Kubernetes, Shared Filesystem, POSIX
+ - CephFS, File Storage, Kubernetes, POSIX, Shared Filesystem
 
 #### Properties
 
 - [Documentation](https://rook.io/docs/rook/latest/CRDs/Shared-Filesystem/ceph-filesystem-crd/)
 - [Reference](https://rook.io/docs/rook/latest/CRDs/Shared-Filesystem/)
 - [JSONSchema](json-schema/rook-ceph-filesystem-schema.json)
+- [JSONStructure](json-structure/rook-ceph-filesystem-structure.json)
 
 ## Common Properties
 
@@ -91,7 +91,11 @@ Rook manages CephFilesystem resources to provision shared POSIX-compliant file s
 - [JSONSchema](json-schema/rook-ceph-block-pool-schema.json)
 - [JSONSchema](json-schema/rook-ceph-filesystem-schema.json)
 - [JSONSchema](json-schema/rook-ceph-object-store-schema.json)
+- [JSONStructure](json-structure/rook-ceph-cluster-structure.json)
 - [JSON-LD](json-ld/rook-context.jsonld)
+- [Vocabulary](vocabulary/rook-vocabulary.yml)
+- [Rules](rules/rook-spectral-rules.yml)
+- [Capabilities](capabilities/storage-orchestration.yaml)
 - [Website](https://rook.io)
 - [Documentation](https://rook.io/docs/rook/latest/)
 - [Getting Started](https://rook.io/docs/rook/latest/Getting-Started/quickstart/)
@@ -103,6 +107,23 @@ Rook manages CephFilesystem resources to provision shared POSIX-compliant file s
 - [Change Log](https://github.com/rook/rook/blob/master/CHANGELOG.md)
 - [Security](https://github.com/rook/rook/blob/master/SECURITY.md)
 - [Stack Overflow](https://stackoverflow.com/questions/tagged/rook)
+- [X](https://twitter.com/rook_io)
+
+## Capabilities
+
+### Storage Orchestration
+Unified capability combining Ceph object storage management and S3-compatible access patterns for platform engineers and DevOps teams managing persistent storage in Kubernetes clusters.
+
+- [Storage Orchestration](capabilities/storage-orchestration.yaml)
+
+#### Shared Definitions
+- [Ceph Object Storage](capabilities/shared/ceph-object-storage.yaml)
+
+## Examples
+
+- [List Buckets](examples/rook-list-buckets-example.json)
+- [List Objects](examples/rook-list-objects-example.json)
+- [Put Object](examples/rook-put-object-example.json)
 
 ## Maintainers
 

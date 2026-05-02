@@ -1,0 +1,242 @@
+naftiko: "1.0.0-alpha1"
+
+info:
+  label: "Rook Storage Orchestration"
+  description: >-
+    Unified capability for cloud-native storage orchestration on Kubernetes using Rook.
+    Combines Ceph object storage management with S3-compatible access patterns for
+    platform engineers, DevOps teams, and application developers managing persistent
+    storage in Kubernetes clusters.
+  tags:
+    - Block Storage
+    - CNCF
+    - Ceph
+    - Cloud Native
+    - File Storage
+    - Kubernetes
+    - Object Storage
+    - Storage
+  created: "2026-05-02"
+  modified: "2026-05-02"
+
+binds:
+  - namespace: env
+    keys:
+      ROOK_S3_ACCESS_KEY: ROOK_S3_ACCESS_KEY
+      ROOK_S3_SECRET_KEY: ROOK_S3_SECRET_KEY
+
+capability:
+  consumes:
+    - import: ceph-object-storage
+      location: ./shared/ceph-object-storage.yaml
+
+  exposes:
+    - type: rest
+      port: 8080
+      namespace: rook-storage-api
+      description: "Unified REST API for Rook cloud-native storage orchestration on Kubernetes."
+      resources:
+        - path: /v1/buckets
+          name: buckets
+          description: "Manage S3-compatible buckets in Ceph Object Storage"
+          operations:
+            - method: GET
+              name: list-buckets
+              description: "List all S3 buckets in the Ceph Object Storage gateway"
+              call: "ceph-object-storage.list-buckets"
+              outputParameters:
+                - type: object
+                  mapping: "$."
+            - method: POST
+              name: create-bucket
+              description: "Create a new S3 bucket in Ceph Object Storage"
+              call: "ceph-object-storage.create-bucket"
+              with:
+                bucket: "rest.bucket"
+              outputParameters:
+                - type: object
+                  mapping: "$."
+        - path: /v1/buckets/{bucket}
+          name: bucket
+          description: "Single bucket operations"
+          operations:
+            - method: GET
+              name: check-bucket
+              description: "Check bucket existence and access permissions"
+              call: "ceph-object-storage.head-bucket"
+              with:
+                bucket: "rest.bucket"
+              outputParameters:
+                - type: object
+                  mapping: "$."
+            - method: DELETE
+              name: delete-bucket
+              description: "Delete an empty S3 bucket"
+              call: "ceph-object-storage.delete-bucket"
+              with:
+                bucket: "rest.bucket"
+              outputParameters:
+                - type: object
+                  mapping: "$."
+        - path: /v1/buckets/{bucket}/objects
+          name: objects
+          description: "Manage objects within a Ceph bucket"
+          operations:
+            - method: GET
+              name: list-objects
+              description: "List objects in a bucket with optional prefix and pagination"
+              call: "ceph-object-storage.list-objects"
+              with:
+                bucket: "rest.bucket"
+                prefix: "rest.prefix"
+                max-keys: "rest.max_keys"
+              outputParameters:
+                - type: object
+                  mapping: "$."
+        - path: /v1/buckets/{bucket}/objects/{key}
+          name: object
+          description: "Single object operations"
+          operations:
+            - method: GET
+              name: get-object
+              description: "Download an object from Ceph object storage"
+              call: "ceph-object-storage.get-object"
+              with:
+                bucket: "rest.bucket"
+                key: "rest.key"
+              outputParameters:
+                - type: object
+                  mapping: "$."
+            - method: PUT
+              name: put-object
+              description: "Upload an object to Ceph object storage"
+              call: "ceph-object-storage.put-object"
+              with:
+                bucket: "rest.bucket"
+                key: "rest.key"
+                object_data: "rest.body"
+              outputParameters:
+                - type: object
+                  mapping: "$."
+            - method: DELETE
+              name: delete-object
+              description: "Delete an object from Ceph object storage"
+              call: "ceph-object-storage.delete-object"
+              with:
+                bucket: "rest.bucket"
+                key: "rest.key"
+              outputParameters:
+                - type: object
+                  mapping: "$."
+            - method: HEAD
+              name: head-object
+              description: "Retrieve object metadata without downloading"
+              call: "ceph-object-storage.head-object"
+              with:
+                bucket: "rest.bucket"
+                key: "rest.key"
+              outputParameters:
+                - type: object
+                  mapping: "$."
+
+    - type: mcp
+      port: 9090
+      namespace: rook-storage-mcp
+      transport: http
+      description: "MCP server for AI-assisted Rook cloud-native storage orchestration on Kubernetes."
+      tools:
+        - name: list-buckets
+          description: "List all S3 buckets in the Ceph Object Storage gateway managed by Rook"
+          hints:
+            readOnly: true
+            openWorld: false
+          call: "ceph-object-storage.list-buckets"
+          outputParameters:
+            - type: object
+              mapping: "$."
+        - name: create-bucket
+          description: "Create a new S3-compatible bucket in Rook Ceph Object Storage"
+          hints:
+            readOnly: false
+            openWorld: false
+          call: "ceph-object-storage.create-bucket"
+          with:
+            bucket: "tools.bucket"
+          outputParameters:
+            - type: object
+              mapping: "$."
+        - name: delete-bucket
+          description: "Delete an empty Ceph bucket managed by Rook"
+          hints:
+            readOnly: false
+            destructive: true
+            idempotent: true
+          call: "ceph-object-storage.delete-bucket"
+          with:
+            bucket: "tools.bucket"
+          outputParameters:
+            - type: object
+              mapping: "$."
+        - name: list-objects
+          description: "List objects in a Rook Ceph bucket with optional prefix filter and pagination"
+          hints:
+            readOnly: true
+            openWorld: false
+          call: "ceph-object-storage.list-objects"
+          with:
+            bucket: "tools.bucket"
+            prefix: "tools.prefix"
+            max-keys: "tools.max_keys"
+          outputParameters:
+            - type: object
+              mapping: "$."
+        - name: get-object
+          description: "Download an object from Rook Ceph object storage"
+          hints:
+            readOnly: true
+            openWorld: false
+          call: "ceph-object-storage.get-object"
+          with:
+            bucket: "tools.bucket"
+            key: "tools.key"
+          outputParameters:
+            - type: object
+              mapping: "$."
+        - name: put-object
+          description: "Upload an object to Rook Ceph object storage"
+          hints:
+            readOnly: false
+            openWorld: false
+          call: "ceph-object-storage.put-object"
+          with:
+            bucket: "tools.bucket"
+            key: "tools.key"
+            object_data: "tools.object_data"
+          outputParameters:
+            - type: object
+              mapping: "$."
+        - name: delete-object
+          description: "Delete an object from Rook Ceph object storage"
+          hints:
+            readOnly: false
+            destructive: true
+            idempotent: true
+          call: "ceph-object-storage.delete-object"
+          with:
+            bucket: "tools.bucket"
+            key: "tools.key"
+          outputParameters:
+            - type: object
+              mapping: "$."
+        - name: get-object-metadata
+          description: "Retrieve metadata of a Ceph object without downloading the content"
+          hints:
+            readOnly: true
+            openWorld: false
+          call: "ceph-object-storage.head-object"
+          with:
+            bucket: "tools.bucket"
+            key: "tools.key"
+          outputParameters:
+            - type: object
+              mapping: "$."
