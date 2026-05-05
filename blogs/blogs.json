@@ -1,0 +1,13 @@
+{
+  "repo": "rook",
+  "feeds": [
+    {
+      "source": "https://blog.rook.io/",
+      "feed_url": "https://blog.rook.io/feed",
+      "saved": 10,
+      "title": "Rook Blog - Medium"
+    }
+  ],
+  "post_count": 10,
+  "fetched": "2026-05-03T23:35:05Z"
+}
