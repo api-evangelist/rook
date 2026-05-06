@@ -4,106 +4,57 @@ schema: https://raw.githubusercontent.com/api-evangelist/interface-research/main
 provider: Rook
 providerId: rook
 created: '2026-05-04'
-modified: '2026-05-04'
+modified: '2026-05-05'
+reconciled: true
 tags:
-  - Block Storage
-  - CNCF
+  - Rook
   - Ceph
-  - Cloud Native
-  - File Storage
-  - Graduated
   - Kubernetes
-  - Object Storage
-  - Orchestration
-  - Storage
+  - Open Source
   - Rate Limiting
-  - Quotas
-  - Throttling
-description: Machine-readable rate limit definitions for the Rook API surface. Captures per-tier quotas,
-  burst behavior, response signaling, and recovery semantics. Defaults are scaffold values to be replaced
-  with published provider limits.
-headers:
-  limit: X-RateLimit-Limit
-  remaining: X-RateLimit-Remaining
-  reset: X-RateLimit-Reset
-  retryAfter: Retry-After
-  policy: RateLimit-Policy
+description: >-
+  Rook does not operate a hosted API and therefore does not impose project-level rate limits.
+  The Rook CRDs are consumed via the Kubernetes API server in the operator's host cluster;
+  any throttling is whatever the cluster administrator configures on the Kubernetes API
+  server (kube-apiserver flow-control / API priority and fairness, --max-requests-inflight,
+  client-go QPS/burst). The S3-compatible object endpoint that Rook can deploy on top of
+  Ceph (via the RGW) is rate-limited by Ceph RGW configuration, not by Rook itself.
+sources:
+  - https://rook.io/docs/rook/latest/
+  - https://github.com/rook/rook
 responseCodes:
   throttled: 429
-  quotaExceeded: 429
-  serviceUnavailable: 503
 limits:
-  - tier: free
-    name: Free Tier Default
-    scope: api-key
-    metric: requests_per_minute
-    limit: 10
-    burst: 20
-    timeFrame: minute
-    applies:
-      - Rook Ceph Custom Resource API
-      - Rook Ceph Object Storage API
-      - Rook Ceph Block Storage API
-      - Rook Ceph Shared Filesystem API
-  - tier: free
-    name: Free Tier Monthly Quota
-    scope: api-key
-    metric: requests_per_month
-    limit: 1000
-    timeFrame: month
-    applies:
-      - Rook Ceph Custom Resource API
-      - Rook Ceph Object Storage API
-      - Rook Ceph Block Storage API
-      - Rook Ceph Shared Filesystem API
-  - tier: professional
-    name: Professional Tier Default
-    scope: api-key
-    metric: requests_per_minute
-    limit: 100
-    burst: 200
-    timeFrame: minute
-    applies:
-      - Rook Ceph Custom Resource API
-      - Rook Ceph Object Storage API
-      - Rook Ceph Block Storage API
-      - Rook Ceph Shared Filesystem API
-  - tier: professional
-    name: Professional Tier Monthly Quota
-    scope: api-key
-    metric: requests_per_month
-    limit: 100000
-    timeFrame: month
-    applies:
-      - Rook Ceph Custom Resource API
-      - Rook Ceph Object Storage API
-      - Rook Ceph Block Storage API
-      - Rook Ceph Shared Filesystem API
-  - tier: enterprise
-    name: Enterprise Negotiated Limit
-    scope: contract
-    metric: requests_per_minute
-    limit: 1000
-    burst: 5000
-    timeFrame: minute
-    applies:
-      - Rook Ceph Custom Resource API
-      - Rook Ceph Object Storage API
-      - Rook Ceph Block Storage API
-      - Rook Ceph Shared Filesystem API
+  - name: Kubernetes API server (Rook CRDs)
+    scope: cluster
+    metric: requests_per_second
+    limit: cluster-administrator configured (kube-apiserver flow control)
+    notes: >-
+      Rook CRDs (CephCluster, CephBlockPool, ObjectStore, etc.) are served by the host
+      cluster's kube-apiserver. Throughput follows whatever Priority and Fairness
+      configuration the cluster operator has set.
+  - name: Ceph RGW (S3 endpoint)
+    scope: ceph_user
+    metric: requests_per_second
+    limit: configured per ObjectStore / RGW user
+    notes: >-
+      When Rook deploys an Object Store (RGW), per-user and per-bucket throttling is
+      controlled by Ceph RGW configuration (rgw_max_concurrent_requests, user/bucket
+      quotas), not by Rook.
 policies:
-  - name: Backoff Strategy
-    description: Clients should implement exponential backoff with jitter, honoring the Retry-After header
-      when present.
-  - name: Burst Handling
-    description: Short bursts above the steady-state limit are tolerated up to the documented burst ceiling
-      before throttling engages.
-  - name: Quota Reset
-    description: Monthly quotas reset at the start of each calendar month in UTC. Per-minute and per-second
-      windows reset on a sliding-window basis.
-  - name: Fair Use
-    description: Even on uncapped enterprise tiers, sustained usage that materially impacts shared infrastructure
-      may be subject to fair-use throttling.
+  - name: Kubernetes-Native Throttling
+    description: >-
+      All Rook control-plane traffic flows through the Kubernetes API server; clients should
+      respect kube-apiserver 429 responses with Retry-After and configure client-go QPS and
+      burst appropriately.
+  - name: Ceph RGW Configuration
+    description: >-
+      Object-storage rate, quota, and throttling policy is set on the Ceph cluster (radosgw
+      config and user quotas) rather than at the Rook layer.
+  - name: Self-Hosted Operator
+    description: >-
+      Because Rook is self-hosted, there is no project-level SaaS quota or burst contract;
+      operational limits are the operator's responsibility.
 maintainers:
   - FN: Kin Lane
     email: kin@apievangelist.com
