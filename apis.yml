@@ -135,7 +135,7 @@ common:
     url: json-schema/rook-ceph-object-store-schema.json
   - type: JSONStructure
     url: json-structure/rook-ceph-cluster-structure.json
-  - type: JSON-LD
+  - type: JSONLD
     url: json-ld/rook-context.jsonld
   - type: Vocabulary
     url: vocabulary/rook-vocabulary.yml
@@ -147,9 +147,9 @@ common:
     url: https://rook.io
   - type: Documentation
     url: https://rook.io/docs/rook/latest/
-  - type: Getting Started
+  - type: GettingStarted
     url: https://rook.io/docs/rook/latest/Getting-Started/quickstart/
-  - type: GitHub Organization
+  - type: GitHubOrganization
     url: https://github.com/rook
   - type: GitHubRepository
     url: https://github.com/rook/rook
@@ -159,11 +159,11 @@ common:
     url: https://rook.io/community/
   - type: Slack
     url: https://slack.rook.io
-  - type: Change Log
+  - type: ChangeLog
     url: https://github.com/rook/rook/blob/master/CHANGELOG.md
   - type: Security
     url: https://github.com/rook/rook/blob/master/SECURITY.md
-  - type: Stack Overflow
+  - type: StackOverflow
     url: https://stackoverflow.com/questions/tagged/rook
   - type: X
     url: https://twitter.com/rook_io
