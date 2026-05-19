@@ -1,0 +1,253 @@
+naftiko: 1.0.0-alpha2
+info:
+  label: Rook Ceph Object Storage API — Objects
+  description: 'Rook Ceph Object Storage API — Objects. 5 operations. Lead operation: List Objects in a Bucket. Self-contained
+    Naftiko capability covering one Rook business surface.'
+  tags:
+  - Rook
+  - Objects
+  created: '2026-05-19'
+  modified: '2026-05-19'
+binds:
+- namespace: env
+  keys:
+    ROOK_API_KEY: ROOK_API_KEY
+capability:
+  consumes:
+  - type: http
+    namespace: ceph-object-storage-objects
+    baseUri: http://{rgw-host}:{port}
+    description: Rook Ceph Object Storage API — Objects business capability. Self-contained, no shared references.
+    resources:
+    - name: bucket
+      path: /{bucket}
+      operations:
+      - name: listobjects
+        method: GET
+        description: List Objects in a Bucket
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        inputParameters:
+        - name: list-type
+          in: query
+          type: integer
+          description: Set to 2 to use the newer List Objects V2 API which uses continuation tokens instead of markers for
+            pagination.
+        - name: prefix
+          in: query
+          type: string
+          description: Limits the response to keys beginning with the specified prefix. Used to organize objects into virtual
+            directories.
+        - name: delimiter
+          in: query
+          type: string
+          description: Character used to group keys. All keys that contain the delimiter between the prefix and the first
+            occurrence of the delimiter are grouped into a single CommonP
+        - name: max-keys
+          in: query
+          type: integer
+          description: Maximum number of keys to return in a single response. Defaults to 1000, maximum is 1000.
+        - name: continuation-token
+          in: query
+          type: string
+          description: Token from a previous List Objects V2 response used to continue listing from where the previous call
+            left off.
+        - name: marker
+          in: query
+          type: string
+          description: Key after which listing should begin, used for pagination in List Objects V1 API.
+    - name: bucket-key
+      path: /{bucket}/{key}
+      operations:
+      - name: putobject
+        method: PUT
+        description: Upload an Object
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        inputParameters:
+        - name: body
+          in: body
+          type: object
+          description: Request body (JSON).
+          required: true
+      - name: getobject
+        method: GET
+        description: Download an Object
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+        inputParameters:
+        - name: Range
+          in: header
+          type: string
+          description: HTTP range header for partial content requests, e.g. bytes=0-1023 to retrieve the first 1024 bytes.
+        - name: If-Match
+          in: header
+          type: string
+          description: Returns the object only if the ETag matches the specified value, otherwise returns HTTP 412.
+        - name: If-None-Match
+          in: header
+          type: string
+          description: Returns the object only if the ETag does not match the specified value, used for cache validation.
+      - name: headobject
+        method: HEAD
+        description: Get Object Metadata
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+      - name: deleteobject
+        method: DELETE
+        description: Delete an Object
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
+    authentication:
+      type: apikey
+      key: Authorization
+      value: '{{env.ROOK_API_KEY}}'
+      placement: header
+  exposes:
+  - type: rest
+    namespace: ceph-object-storage-objects-rest
+    port: 8080
+    description: REST adapter for Rook Ceph Object Storage API — Objects. One Spectral-compliant resource per consumed operation,
+      prefixed with /v1.
+    resources:
+    - path: /v1/{bucket}
+      name: bucket
+      description: REST surface for bucket.
+      operations:
+      - method: GET
+        name: listobjects
+        description: List Objects in a Bucket
+        call: ceph-object-storage-objects.listobjects
+        with:
+          list-type: rest.list-type
+          prefix: rest.prefix
+          delimiter: rest.delimiter
+          max-keys: rest.max-keys
+          continuation-token: rest.continuation-token
+          marker: rest.marker
+        outputParameters:
+        - type: object
+          mapping: $.
+    - path: /v1/{bucket}/{key}
+      name: bucket-key
+      description: REST surface for bucket-key.
+      operations:
+      - method: PUT
+        name: putobject
+        description: Upload an Object
+        call: ceph-object-storage-objects.putobject
+        with:
+          body: rest.body
+        outputParameters:
+        - type: object
+          mapping: $.
+      - method: GET
+        name: getobject
+        description: Download an Object
+        call: ceph-object-storage-objects.getobject
+        with:
+          Range: rest.Range
+          If-Match: rest.If-Match
+          If-None-Match: rest.If-None-Match
+        outputParameters:
+        - type: object
+          mapping: $.
+      - method: HEAD
+        name: headobject
+        description: Get Object Metadata
+        call: ceph-object-storage-objects.headobject
+        outputParameters:
+        - type: object
+          mapping: $.
+      - method: DELETE
+        name: deleteobject
+        description: Delete an Object
+        call: ceph-object-storage-objects.deleteobject
+        outputParameters:
+        - type: object
+          mapping: $.
+  - type: mcp
+    namespace: ceph-object-storage-objects-mcp
+    port: 9090
+    transport: http
+    description: MCP adapter for Rook Ceph Object Storage API — Objects. One tool per consumed operation, routed inline through
+      this capability's consumes block.
+    tools:
+    - name: list-objects-bucket
+      description: List Objects in a Bucket
+      hints:
+        readOnly: true
+        destructive: false
+        idempotent: true
+      call: ceph-object-storage-objects.listobjects
+      with:
+        list-type: tools.list-type
+        prefix: tools.prefix
+        delimiter: tools.delimiter
+        max-keys: tools.max-keys
+        continuation-token: tools.continuation-token
+        marker: tools.marker
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: upload-object
+      description: Upload an Object
+      hints:
+        readOnly: false
+        destructive: false
+        idempotent: true
+      call: ceph-object-storage-objects.putobject
+      with:
+        body: tools.body
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: download-object
+      description: Download an Object
+      hints:
+        readOnly: true
+        destructive: false
+        idempotent: true
+      call: ceph-object-storage-objects.getobject
+      with:
+        Range: tools.Range
+        If-Match: tools.If-Match
+        If-None-Match: tools.If-None-Match
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: get-object-metadata
+      description: Get Object Metadata
+      hints:
+        readOnly: false
+        destructive: false
+        idempotent: false
+      call: ceph-object-storage-objects.headobject
+      outputParameters:
+      - type: object
+        mapping: $.
+    - name: delete-object
+      description: Delete an Object
+      hints:
+        readOnly: false
+        destructive: true
+        idempotent: true
+      call: ceph-object-storage-objects.deleteobject
+      outputParameters:
+      - type: object
+        mapping: $.
