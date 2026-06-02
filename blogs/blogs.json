@@ -2,12 +2,20 @@
   "repo": "rook",
   "feeds": [
     {
-      "source": "https://blog.rook.io/",
+      "source": "https://blog.rook.io/feed/",
       "feed_url": "https://blog.rook.io/feed/",
-      "title": "Rook Blog - Medium",
-      "saved": 9
+      "title": "",
+      "saved": 0,
+      "method": "feed"
+    },
+    {
+      "source": "https://github.com/rook/rook",
+      "feed_url": "https://github.com/rook/rook",
+      "title": "",
+      "saved": 0,
+      "method": "none"
     }
   ],
   "post_count": 19,
-  "fetched": "2026-05-17T20:20:35Z"
+  "fetched": "2026-06-01T23:35:02Z"
 }
