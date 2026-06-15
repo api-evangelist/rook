@@ -1,0 +1,333 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Rook Ceph Object Storage API",
+    "version": "1.0.0"
+  },
+  "request": {
+    "auth": {
+      "type": "apikey",
+      "key": "Authorization",
+      "value": "{{Authorization}}",
+      "placement": "header"
+    }
+  },
+  "items": [
+    {
+      "info": {
+        "name": "Buckets",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "List All Buckets",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "http://{rgw-host}:{port}/"
+          },
+          "docs": "Returns a list of all S3 buckets owned by the authenticated user in the Ceph Object Storage gateway. The response includes bucket names and creation dates. Credentials are provided via AWS Signature Version 4 or Version 2 authentication using access keys provisioned by CephObjectStoreUser CRDs."
+        },
+        {
+          "info": {
+            "name": "Create a Bucket",
+            "type": "http"
+          },
+          "http": {
+            "method": "PUT",
+            "url": "http://{rgw-host}:{port}/:bucket",
+            "params": [
+              {
+                "name": "bucket",
+                "value": "",
+                "type": "path",
+                "description": "Name of the S3 bucket in the Ceph Object Storage gateway. Must be globally unique within the object store and follow DNS naming conventions."
+              }
+            ]
+          },
+          "docs": "Creates a new S3 bucket in the Ceph Object Storage gateway with the specified name. The bucket is created in the object store backing pool configured in the CephObjectStore CRD. Optional location constraint and ACL headers can be specified in the request."
+        },
+        {
+          "info": {
+            "name": "Delete a Bucket",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "http://{rgw-host}:{port}/:bucket",
+            "params": [
+              {
+                "name": "bucket",
+                "value": "",
+                "type": "path",
+                "description": "Name of the S3 bucket in the Ceph Object Storage gateway. Must be globally unique within the object store and follow DNS naming conventions."
+              }
+            ]
+          },
+          "docs": "Deletes an empty S3 bucket from the Ceph Object Storage gateway. The bucket must be empty before it can be deleted. Returns HTTP 409 if the bucket is not empty."
+        },
+        {
+          "info": {
+            "name": "Check Bucket Existence and Access",
+            "type": "http"
+          },
+          "http": {
+            "method": "HEAD",
+            "url": "http://{rgw-host}:{port}/:bucket",
+            "params": [
+              {
+                "name": "bucket",
+                "value": "",
+                "type": "path",
+                "description": "Name of the S3 bucket in the Ceph Object Storage gateway. Must be globally unique within the object store and follow DNS naming conventions."
+              }
+            ]
+          },
+          "docs": "Checks whether a bucket exists and whether the caller has permission to access it. Returns HTTP 200 if the bucket exists and is accessible, HTTP 403 if the bucket exists but access is denied, or HTTP 404 if the bucket does not exist."
+        }
+      ]
+    },
+    {
+      "info": {
+        "name": "Objects",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "List Objects in a Bucket",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "http://{rgw-host}:{port}/:bucket",
+            "params": [
+              {
+                "name": "bucket",
+                "value": "",
+                "type": "path",
+                "description": "Name of the S3 bucket in the Ceph Object Storage gateway. Must be globally unique within the object store and follow DNS naming conventions."
+              },
+              {
+                "name": "list-type",
+                "value": "",
+                "type": "query",
+                "description": "Set to 2 to use the newer List Objects V2 API which uses continuation tokens instead of markers for pagination."
+              },
+              {
+                "name": "prefix",
+                "value": "",
+                "type": "query",
+                "description": "Limits the response to keys beginning with the specified prefix. Used to organize objects into virtual directories."
+              },
+              {
+                "name": "delimiter",
+                "value": "",
+                "type": "query",
+                "description": "Character used to group keys. All keys that contain the delimiter between the prefix and the first occurrence of the delimiter are grouped into a single CommonPrefix entry."
+              },
+              {
+                "name": "max-keys",
+                "value": "",
+                "type": "query",
+                "description": "Maximum number of keys to return in a single response. Defaults to 1000, maximum is 1000."
+              },
+              {
+                "name": "continuation-token",
+                "value": "",
+                "type": "query",
+                "description": "Token from a previous List Objects V2 response used to continue listing from where the previous call left off."
+              },
+              {
+                "name": "marker",
+                "value": "",
+                "type": "query",
+                "description": "Key after which listing should begin, used for pagination in List Objects V1 API."
+              }
+            ]
+          },
+          "docs": "Returns a list of objects stored in the specified S3 bucket. Supports filtering by prefix, delimiter for hierarchical listings, and pagination through continuation tokens. Returns up to 1000 objects per request by default."
+        },
+        {
+          "info": {
+            "name": "Download an Object",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "http://{rgw-host}:{port}/:bucket/:key",
+            "headers": [
+              {
+                "name": "Range",
+                "value": ""
+              },
+              {
+                "name": "If-Match",
+                "value": ""
+              },
+              {
+                "name": "If-None-Match",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "bucket",
+                "value": "",
+                "type": "path",
+                "description": "Name of the S3 bucket in the Ceph Object Storage gateway. Must be globally unique within the object store and follow DNS naming conventions."
+              },
+              {
+                "name": "key",
+                "value": "",
+                "type": "path",
+                "description": "Object key (path) within the bucket. Can include forward slashes to simulate a directory hierarchy, with a maximum length of 1024 bytes."
+              }
+            ]
+          },
+          "docs": "Downloads the data and metadata of an object from the specified key in the S3 bucket. Supports range requests for partial content retrieval and conditional requests using ETag or Last-Modified headers. Returns the object data in the response body."
+        },
+        {
+          "info": {
+            "name": "Upload an Object",
+            "type": "http"
+          },
+          "http": {
+            "method": "PUT",
+            "url": "http://{rgw-host}:{port}/:bucket/:key",
+            "params": [
+              {
+                "name": "bucket",
+                "value": "",
+                "type": "path",
+                "description": "Name of the S3 bucket in the Ceph Object Storage gateway. Must be globally unique within the object store and follow DNS naming conventions."
+              },
+              {
+                "name": "key",
+                "value": "",
+                "type": "path",
+                "description": "Object key (path) within the bucket. Can include forward slashes to simulate a directory hierarchy, with a maximum length of 1024 bytes."
+              }
+            ]
+          },
+          "docs": "Uploads an object to the specified key in the S3 bucket. The object data is included in the request body. Optional request headers allow specifying content type, content encoding, server-side encryption, storage class, and custom metadata prefixed with x-amz-meta-."
+        },
+        {
+          "info": {
+            "name": "Delete an Object",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "http://{rgw-host}:{port}/:bucket/:key",
+            "params": [
+              {
+                "name": "bucket",
+                "value": "",
+                "type": "path",
+                "description": "Name of the S3 bucket in the Ceph Object Storage gateway. Must be globally unique within the object store and follow DNS naming conventions."
+              },
+              {
+                "name": "key",
+                "value": "",
+                "type": "path",
+                "description": "Object key (path) within the bucket. Can include forward slashes to simulate a directory hierarchy, with a maximum length of 1024 bytes."
+              }
+            ]
+          },
+          "docs": "Deletes the specified object from the S3 bucket. If versioning is enabled, this creates a delete marker rather than permanently removing the object. The operation is idempotent and returns HTTP 204 even if the object does not exist."
+        },
+        {
+          "info": {
+            "name": "Get Object Metadata",
+            "type": "http"
+          },
+          "http": {
+            "method": "HEAD",
+            "url": "http://{rgw-host}:{port}/:bucket/:key",
+            "params": [
+              {
+                "name": "bucket",
+                "value": "",
+                "type": "path",
+                "description": "Name of the S3 bucket in the Ceph Object Storage gateway. Must be globally unique within the object store and follow DNS naming conventions."
+              },
+              {
+                "name": "key",
+                "value": "",
+                "type": "path",
+                "description": "Object key (path) within the bucket. Can include forward slashes to simulate a directory hierarchy, with a maximum length of 1024 bytes."
+              }
+            ]
+          },
+          "docs": "Retrieves the metadata of an object without downloading the object data. Returns HTTP headers containing content type, content length, ETag, last modified date, and any custom metadata associated with the object."
+        }
+      ]
+    },
+    {
+      "info": {
+        "name": "Multipart Uploads",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "List In-Progress Multipart Uploads",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "http://{rgw-host}:{port}/:bucket?uploads",
+            "params": [
+              {
+                "name": "bucket",
+                "value": "",
+                "type": "path",
+                "description": "Name of the S3 bucket in the Ceph Object Storage gateway. Must be globally unique within the object store and follow DNS naming conventions."
+              },
+              {
+                "name": "uploads",
+                "value": "",
+                "type": "query"
+              }
+            ]
+          },
+          "docs": "Returns a list of in-progress multipart uploads for the specified bucket. Useful for identifying and cleaning up incomplete multipart uploads that may be consuming storage quota."
+        },
+        {
+          "info": {
+            "name": "Initiate a Multipart Upload",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "http://{rgw-host}:{port}/:bucket/:key?uploads",
+            "params": [
+              {
+                "name": "bucket",
+                "value": "",
+                "type": "path",
+                "description": "Name of the S3 bucket in the Ceph Object Storage gateway. Must be globally unique within the object store and follow DNS naming conventions."
+              },
+              {
+                "name": "key",
+                "value": "",
+                "type": "path",
+                "description": "Object key (path) within the bucket. Can include forward slashes to simulate a directory hierarchy, with a maximum length of 1024 bytes."
+              },
+              {
+                "name": "uploads",
+                "value": "",
+                "type": "query"
+              }
+            ]
+          },
+          "docs": "Initiates a multipart upload for a large object and returns an upload ID that must be used in subsequent part upload and complete requests. Parts can then be uploaded in parallel using the upload ID. The multipart upload is not visible in the bucket until it is completed with a CompleteMultipartUpload request."
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}
