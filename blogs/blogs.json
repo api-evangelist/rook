@@ -2,20 +2,11 @@
   "repo": "rook",
   "feeds": [
     {
-      "source": "https://blog.rook.io/feed/",
-      "feed_url": "https://blog.rook.io/feed/",
-      "title": "",
+      "source": "https://blog.rook.io/",
       "saved": 0,
-      "method": "feed"
-    },
-    {
-      "source": "https://github.com/rook/rook",
-      "feed_url": "https://github.com/rook/rook",
-      "title": "",
-      "saved": 0,
-      "method": "none"
+      "error": "ECONNREFUSED on fetch"
     }
   ],
   "post_count": 19,
-  "fetched": "2026-06-14T20:42:17Z"
+  "fetched": "2026-06-27T13:06:41Z"
 }
