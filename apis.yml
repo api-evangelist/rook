@@ -115,6 +115,10 @@ apis:
       - POSIX
       - Shared Filesystem
 common:
+  - type: DomainSecurity
+    url: security/rook-domain-security.yml
+  - type: Authentication
+    url: authentication/rook-authentication.yml
   - type: LinkedIn
     url: https://www.linkedin.com/company/rook-security
   - type: JSONSchema

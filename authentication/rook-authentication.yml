@@ -1,0 +1,18 @@
+generated: '2026-07-11'
+method: derived
+source: openapi/rook-ceph-object-storage-openapi.yml
+summary:
+  types:
+  - apiKey
+  api_key_in:
+  - header
+schemes:
+- name: s3Auth
+  type: apiKey
+  in: header
+  parameter: Authorization
+  description: AWS Signature Version 4 (SigV4) or AWS Signature Version 2 authentication using
+    access key and secret key pairs provisioned by CephObjectStoreUser Kubernetes CRDs. Credentials
+    are available in the Kubernetes Secret created by Rook for each CephObjectStoreUser.
+  sources:
+  - openapi/rook-ceph-object-storage-openapi.yml
