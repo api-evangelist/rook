@@ -1,89 +1,160 @@
-extends: spectral:oas
+# rook — Spectral ruleset (strengthened)
+# Plain Spectral. Existing hand-authored rules preserved; measured rules added
+# from this provider's own OpenAPI conventions by strengthen_ruleset.py,
+# then self-validated against the spec.
+#
+# Provenance:
+#   - path-params-casing: snake @ 100% (n=15)
+#   - query-params-casing: snake @ 62% (n=8)
+#   - operationid-casing: camel @ 100% (n=11)
+#   - schema-names-casing: pascal @ 100% (n=7)
+#   - schema-properties-casing: pascal @ 100% (n=27)
+#   - security: global (root) — NOT emitting operation-security-required
+#   - error-schema-defined: ErrorResponse
+#   - operation-documents-404: 82% adherence
+#   - merge: kept 9 existing, added 8 measured, upgraded 0
+#   - added: path-params-casing, query-params-casing, schema-names-casing, schema-properties-casing, security-schemes-defined, error-schema-defined, operation-documents-404, no-empty-descriptions
+extends:
+  - spectral:oas
 rules:
-  # Rook S3-compatible API conventions
   rook-operation-summary-title-case:
     description: All operation summaries must use Title Case
-    message: "Operation summary '{{value}}' must use Title Case"
+    message: Operation summary '{{value}}' must use Title Case
     severity: warn
-    given: "$.paths[*][*].summary"
+    given: $.paths[*][*].summary
     then:
       function: pattern
       functionOptions:
-        match: "^[A-Z][^a-z]*([A-Z][^A-Z]*)*$|^([A-Z][a-z]*(\\s[A-Z]?[a-z]*)*[A-Z]?[a-z]*)$"
-
+        match: ^[A-Z][^a-z]*([A-Z][^A-Z]*)*$|^([A-Z][a-z]*(\s[A-Z]?[a-z]*)*[A-Z]?[a-z]*)$
   rook-operation-id-camel-case:
     description: operationId must use camelCase
-    message: "operationId '{{value}}' should use camelCase"
+    message: operationId '{{value}}' should use camelCase
     severity: warn
-    given: "$.paths[*][*].operationId"
+    given: $.paths[*][*].operationId
     then:
       function: pattern
       functionOptions:
-        match: "^[a-z][a-zA-Z0-9]*$"
-
+        match: ^[a-z][a-zA-Z0-9]*$
   rook-s3-path-bucket-required:
     description: S3 paths with /{key} must also include /{bucket} parameter
-    message: "S3 path operations on objects must define the 'bucket' path parameter"
+    message: S3 path operations on objects must define the 'bucket' path parameter
     severity: error
-    given: "$.paths[*][get,put,delete,head].parameters[?(@.in == 'path')]"
+    given: $.paths[*][get,put,delete,head].parameters[?(@.in == 'path')]
     then:
       field: name
       function: enumeration
       functionOptions:
         values:
-          - bucket
-          - key
-
+        - bucket
+        - key
   rook-s3-response-xml-content-type:
     description: S3-compatible responses should use application/xml content type
-    message: "S3 object storage responses should declare application/xml or application/octet-stream content types"
+    message: S3 object storage responses should declare application/xml or application/octet-stream content
+      types
     severity: info
-    given: "$.paths[*][*].responses[*].content"
+    given: $.paths[*][*].responses[*].content
     then:
       function: truthy
-
   rook-operation-description-required:
     description: All operations must have a description
-    message: "Operation is missing a description"
+    message: Operation is missing a description
     severity: warn
-    given: "$.paths[*][get,put,post,delete,head]"
+    given: $.paths[*][get,put,post,delete,head]
     then:
       field: description
       function: truthy
-
   rook-tags-title-case:
     description: All tags must use Title Case
-    message: "Tag '{{value}}' must use Title Case"
+    message: Tag '{{value}}' must use Title Case
     severity: warn
-    given: "$.paths[*][*].tags[*]"
+    given: $.paths[*][*].tags[*]
     then:
       function: pattern
       functionOptions:
-        match: "^[A-Z]"
-
+        match: ^[A-Z]
   rook-error-response-schema:
     description: Error responses should reference an ErrorResponse schema
-    message: "4xx and 5xx responses should include an error response schema"
+    message: 4xx and 5xx responses should include an error response schema
     severity: info
-    given: "$.paths[*][*].responses[4xx,5xx]"
+    given: $.paths[*][*].responses[4xx,5xx]
     then:
       field: content
       function: truthy
-
   rook-server-defined:
     description: At least one server must be defined
-    message: "OpenAPI spec must define at least one server"
+    message: OpenAPI spec must define at least one server
     severity: error
-    given: "$"
+    given: $
     then:
       field: servers
       function: truthy
-
   rook-info-contact:
     description: Info object must include contact information
-    message: "OpenAPI info must include a contact block"
+    message: OpenAPI info must include a contact block
     severity: warn
-    given: "$.info"
+    given: $.info
     then:
       field: contact
+      function: truthy
+  path-params-casing:
+    description: Path parameters should be snake_case (the dominant convention in this API).
+    severity: warn
+    given: $.paths[*].parameters[?(@.in=='path')].name
+    then:
+      function: casing
+      functionOptions:
+        type: snake
+  query-params-casing:
+    description: Query parameters should be snake_case (the dominant convention in this API).
+    severity: warn
+    given: $.paths[*][get,post,put,patch,delete].parameters[?(@.in=='query')]
+    then:
+      field: name
+      function: casing
+      functionOptions:
+        type: snake
+  schema-names-casing:
+    description: Component schema names should be PascalCase (the dominant convention in this API).
+    severity: warn
+    given: $.components.schemas
+    then:
+      field: '@key'
+      function: casing
+      functionOptions:
+        type: pascal
+  schema-properties-casing:
+    description: Schema properties should be PascalCase (the dominant convention in this API).
+    severity: warn
+    given: $.components.schemas[*].properties
+    then:
+      field: '@key'
+      function: pattern
+      functionOptions:
+        match: ^[A-Z][A-Za-z0-9]*$
+  security-schemes-defined:
+    description: Security schemes should be defined in components.
+    severity: warn
+    given: $.components
+    then:
+      field: securitySchemes
+      function: truthy
+  error-schema-defined:
+    description: A shared error schema (ErrorResponse) should be defined for error payloads.
+    severity: warn
+    given: $.components.schemas
+    then:
+      field: ErrorResponse
+      function: truthy
+  operation-documents-404:
+    description: Operations should document a 404 response (documented on 82% of this API's operations).
+    severity: warn
+    given: $.paths[*][get,post,put,patch,delete].responses
+    then:
+      field: '404'
+      function: truthy
+  no-empty-descriptions:
+    description: Descriptions must not be empty strings.
+    severity: warn
+    given: $..description
+    then:
       function: truthy
