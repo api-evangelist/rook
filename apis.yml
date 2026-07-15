@@ -115,6 +115,8 @@ apis:
       - POSIX
       - Shared Filesystem
 common:
+  - type: AgenticAccess
+    url: agentic-access/rook-agentic-access.yml
   - type: DomainSecurity
     url: security/rook-domain-security.yml
   - type: Authentication
