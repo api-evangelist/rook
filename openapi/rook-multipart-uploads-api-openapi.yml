@@ -1,0 +1,176 @@
+openapi: 3.1.0
+info:
+  title: Rook Ceph Object Storage Buckets Multipart Uploads API
+  description: Rook provisions Ceph Object Storage gateways (Ceph RADOS Gateway / RGW) that expose an S3-compatible REST API for object storage operations. The gateway is managed through Rook CephObjectStore and CephObjectStoreUser Kubernetes CRDs. Applications interact with the object storage using standard S3 API semantics including bucket operations, object CRUD, multipart uploads, access control lists, and presigned URLs. User credentials are provisioned via CephObjectStoreUser CRDs and accessed through Kubernetes Secrets.
+  version: 1.0.0
+  contact:
+    name: Rook Community
+    url: https://rook.io/community/
+  termsOfService: https://rook.io/
+servers:
+- url: http://{rgw-host}:{port}
+  description: Ceph RADOS Gateway endpoint as provisioned by Rook CephObjectStore
+  variables:
+    rgw-host:
+      default: rook-ceph-rgw-my-store.rook-ceph.svc
+      description: Kubernetes Service hostname for the RGW endpoint as created by the CephObjectStore CRD. Format is rook-ceph-rgw-{store-name}.{namespace}.svc
+    port:
+      default: '80'
+      description: Port for the RGW service, typically 80 for HTTP or 443 for HTTPS as configured in the CephObjectStore gateway spec
+security:
+- s3Auth: []
+tags:
+- name: Multipart Uploads
+  description: S3-compatible multipart upload operations for large objects, including initiation, part upload, completion, and abort
+paths:
+  /{bucket}?uploads:
+    parameters:
+    - $ref: '#/components/parameters/BucketParam'
+    get:
+      operationId: listMultipartUploads
+      summary: List In-Progress Multipart Uploads
+      description: Returns a list of in-progress multipart uploads for the specified bucket. Useful for identifying and cleaning up incomplete multipart uploads that may be consuming storage quota.
+      tags:
+      - Multipart Uploads
+      parameters:
+      - name: uploads
+        in: query
+        required: true
+        schema:
+          type: string
+          enum:
+          - ''
+      responses:
+        '200':
+          description: List of in-progress multipart uploads
+          content:
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/ListMultipartUploadsResult'
+        '404':
+          description: Bucket not found
+          content:
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /{bucket}/{key}?uploads:
+    parameters:
+    - $ref: '#/components/parameters/BucketParam'
+    - $ref: '#/components/parameters/KeyParam'
+    post:
+      operationId: createMultipartUpload
+      summary: Initiate a Multipart Upload
+      description: Initiates a multipart upload for a large object and returns an upload ID that must be used in subsequent part upload and complete requests. Parts can then be uploaded in parallel using the upload ID. The multipart upload is not visible in the bucket until it is completed with a CompleteMultipartUpload request.
+      tags:
+      - Multipart Uploads
+      parameters:
+      - name: uploads
+        in: query
+        required: true
+        schema:
+          type: string
+          enum:
+          - ''
+      responses:
+        '200':
+          description: Multipart upload initiated with upload ID returned
+          content:
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/InitiateMultipartUploadResult'
+        '404':
+          description: Bucket not found
+          content:
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+components:
+  schemas:
+    InitiateMultipartUploadResult:
+      type: object
+      description: Response to a multipart upload initiation request containing the upload ID needed for subsequent part uploads
+      properties:
+        Bucket:
+          type: string
+          description: Name of the bucket where the object will be stored
+        Key:
+          type: string
+          description: Object key for the multipart upload
+        UploadId:
+          type: string
+          description: Unique identifier for this multipart upload, required in all subsequent part upload and complete/abort requests
+    ListMultipartUploadsResult:
+      type: object
+      description: Response listing in-progress multipart uploads for a bucket
+      properties:
+        Bucket:
+          type: string
+          description: Name of the bucket
+        Upload:
+          type: array
+          description: List of in-progress multipart upload entries
+          items:
+            type: object
+            properties:
+              Key:
+                type: string
+                description: Object key for the multipart upload
+              UploadId:
+                type: string
+                description: Unique identifier for the multipart upload
+              Initiated:
+                type: string
+                format: date-time
+                description: Date and time the multipart upload was initiated
+              Initiator:
+                type: object
+                properties:
+                  ID:
+                    type: string
+                  DisplayName:
+                    type: string
+    ErrorResponse:
+      type: object
+      description: S3-compatible error response returned when an operation fails
+      properties:
+        Code:
+          type: string
+          description: S3 error code string identifying the type of error, e.g. NoSuchBucket, AccessDenied, InvalidBucketName
+        Message:
+          type: string
+          description: Human-readable description of the error
+        Resource:
+          type: string
+          description: The bucket or object key that caused the error
+        RequestId:
+          type: string
+          description: Unique identifier for the failed request for debugging
+  parameters:
+    BucketParam:
+      name: bucket
+      in: path
+      required: true
+      description: Name of the S3 bucket in the Ceph Object Storage gateway. Must be globally unique within the object store and follow DNS naming conventions.
+      schema:
+        type: string
+        minLength: 3
+        maxLength: 63
+        pattern: ^[a-z0-9][a-z0-9\-]*[a-z0-9]$
+    KeyParam:
+      name: key
+      in: path
+      required: true
+      description: Object key (path) within the bucket. Can include forward slashes to simulate a directory hierarchy, with a maximum length of 1024 bytes.
+      schema:
+        type: string
+        minLength: 1
+        maxLength: 1024
+  securitySchemes:
+    s3Auth:
+      type: apiKey
+      in: header
+      name: Authorization
+      description: AWS Signature Version 4 (SigV4) or AWS Signature Version 2 authentication using access key and secret key pairs provisioned by CephObjectStoreUser Kubernetes CRDs. Credentials are available in the Kubernetes Secret created by Rook for each CephObjectStoreUser.
+externalDocs:
+  description: Rook Ceph Object Storage Documentation
+  url: https://rook.io/docs/rook/latest/CRDs/Object-Storage/ceph-object-store-crd/
