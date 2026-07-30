@@ -1,4 +1,18 @@
 aid: rook
+accessModel:
+  pricing: freemium
+  onboarding: self-serve
+  trial: false
+  try_now: true
+  public: false
+  label: Freemium · Self-serve signup
+  confidence: high
+  source:
+  - plans
+  - authentication
+  generated: '2026-07-22'
+  method: derived
+image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/icons/rook.png
 name: Rook
 description: >-
   Rook is a CNCF graduated cloud-native storage orchestrator for Kubernetes, providing the platform, framework, and
@@ -23,97 +37,131 @@ created: '2025-01-01'
 modified: '2026-05-19'
 specificationVersion: '0.19'
 apis:
-  - aid: rook:rook-ceph-crd-api
-    name: Rook Ceph Custom Resource API
-    description: >-
-      Rook extends Kubernetes through Custom Resource Definitions (CRDs) to declaratively manage Ceph storage clusters.
-      The CRD API includes resources for CephCluster, CephBlockPool, CephFilesystem, CephObjectStore,
-      CephObjectStoreUser, CephNFS, CephRBDMirror, and related storage primitives, enabling operators to configure and
-      manage Ceph storage entirely through Kubernetes manifests.
-    humanURL: https://rook.io/docs/rook/latest/CRDs/Cluster/ceph-cluster-crd/
-    properties:
-      - type: Documentation
-        url: https://rook.io/docs/rook/latest/CRDs/Cluster/ceph-cluster-crd/
-      - type: Reference
-        url: https://rook.io/docs/rook/latest/CRDs/
-      - type: JSONSchema
-        url: json-schema/rook-ceph-cluster-schema.json
-      - type: JSONStructure
-        url: json-structure/rook-ceph-cluster-structure.json
-    tags:
-      - Ceph
-      - CRD
-      - Declarative
-      - Kubernetes
-      - Storage
-  - aid: rook:rook-ceph-object-storage-api
-    name: Rook Ceph Object Storage API
-    description: >-
-      Rook provisions Ceph Object Storage gateways (RGW) that expose an S3-compatible and Swift-compatible object
-      storage API. Applications can interact with Ceph Object Storage using standard S3 API clients, and Rook manages
-      the lifecycle of the object store, buckets, and user credentials through Kubernetes CRDs.
-    humanURL: https://rook.io/docs/rook/latest/CRDs/Object-Storage/ceph-object-store-crd/
-    properties:
-      - type: Documentation
-        url: https://rook.io/docs/rook/latest/CRDs/Object-Storage/ceph-object-store-crd/
-      - type: Reference
-        url: https://rook.io/docs/rook/latest/CRDs/Object-Storage/
-      - type: OpenAPI
-        url: openapi/rook-ceph-object-storage-openapi.yml
-      - type: JSONSchema
-        url: json-schema/rook-ceph-object-store-schema.json
-      - type: JSONStructure
-        url: json-structure/rook-ceph-object-store-structure.json
-    tags:
-      - Ceph
-      - Object Storage
-      - S3
-      - Storage
-      - Swift
-  - aid: rook:rook-ceph-block-storage-api
-    name: Rook Ceph Block Storage API
-    description: >-
-      Rook provides Ceph block storage (RBD) through Kubernetes StorageClasses and PersistentVolumeClaims. The
-      CephBlockPool CRD and associated StorageClass allow applications to dynamically provision block volumes backed by
-      Ceph RADOS Block Device, supporting ReadWriteOnce access modes for stateful workloads.
-    humanURL: https://rook.io/docs/rook/latest/CRDs/Block-Storage/ceph-block-pool-crd/
-    properties:
-      - type: Documentation
-        url: https://rook.io/docs/rook/latest/CRDs/Block-Storage/ceph-block-pool-crd/
-      - type: Reference
-        url: https://rook.io/docs/rook/latest/CRDs/Block-Storage/
-      - type: JSONSchema
-        url: json-schema/rook-ceph-block-pool-schema.json
-      - type: JSONStructure
-        url: json-structure/rook-ceph-block-pool-structure.json
-    tags:
-      - Block Storage
-      - Ceph
-      - Kubernetes
-      - PersistentVolume
-      - RBD
-  - aid: rook:rook-ceph-filesystem-api
-    name: Rook Ceph Shared Filesystem API
-    description: >-
-      Rook manages CephFilesystem resources to provision shared POSIX-compliant file storage backed by CephFS. Multiple
-      pods can simultaneously read and write to shared filesystem volumes, making it suitable for workloads requiring
-      ReadWriteMany access, configured through the CephFilesystem CRD and a corresponding StorageClass.
-    humanURL: https://rook.io/docs/rook/latest/CRDs/Shared-Filesystem/ceph-filesystem-crd/
-    properties:
-      - type: Documentation
-        url: https://rook.io/docs/rook/latest/CRDs/Shared-Filesystem/ceph-filesystem-crd/
-      - type: Reference
-        url: https://rook.io/docs/rook/latest/CRDs/Shared-Filesystem/
-      - type: JSONSchema
-        url: json-schema/rook-ceph-filesystem-schema.json
-      - type: JSONStructure
-        url: json-structure/rook-ceph-filesystem-structure.json
-    tags:
-      - CephFS
-      - File Storage
-      - Kubernetes
-      - POSIX
-      - Shared Filesystem
+- aid: rook:rook-ceph-crd-api
+  name: Rook Ceph Custom Resource API
+  description: >-
+    Rook extends Kubernetes through Custom Resource Definitions (CRDs) to declaratively manage Ceph storage
+    clusters. The CRD API includes resources for CephCluster, CephBlockPool, CephFilesystem, CephObjectStore,
+    CephObjectStoreUser, CephNFS, CephRBDMirror, and related storage primitives, enabling operators to
+    configure and manage Ceph storage entirely through Kubernetes manifests.
+  humanURL: https://rook.io/docs/rook/latest/CRDs/Cluster/ceph-cluster-crd/
+  properties:
+  - type: Documentation
+    url: https://rook.io/docs/rook/latest/CRDs/Cluster/ceph-cluster-crd/
+  - type: Reference
+    url: https://rook.io/docs/rook/latest/CRDs/
+  - type: JSONSchema
+    url: json-schema/rook-ceph-cluster-schema.json
+  - type: JSONStructure
+    url: json-structure/rook-ceph-cluster-structure.json
+  tags:
+  - Ceph
+  - CRD
+  - Declarative
+  - Kubernetes
+  - Storage
+- aid: rook:rook-ceph-block-storage-api
+  name: Rook Ceph Block Storage API
+  description: >-
+    Rook provides Ceph block storage (RBD) through Kubernetes StorageClasses and PersistentVolumeClaims.
+    The CephBlockPool CRD and associated StorageClass allow applications to dynamically provision block
+    volumes backed by Ceph RADOS Block Device, supporting ReadWriteOnce access modes for stateful workloads.
+  humanURL: https://rook.io/docs/rook/latest/CRDs/Block-Storage/ceph-block-pool-crd/
+  properties:
+  - type: Documentation
+    url: https://rook.io/docs/rook/latest/CRDs/Block-Storage/ceph-block-pool-crd/
+  - type: Reference
+    url: https://rook.io/docs/rook/latest/CRDs/Block-Storage/
+  - type: JSONSchema
+    url: json-schema/rook-ceph-block-pool-schema.json
+  - type: JSONStructure
+    url: json-structure/rook-ceph-block-pool-structure.json
+  tags:
+  - Block Storage
+  - Ceph
+  - Kubernetes
+  - PersistentVolume
+  - RBD
+- aid: rook:rook-ceph-filesystem-api
+  name: Rook Ceph Shared Filesystem API
+  description: >-
+    Rook manages CephFilesystem resources to provision shared POSIX-compliant file storage backed by CephFS.
+    Multiple pods can simultaneously read and write to shared filesystem volumes, making it suitable for
+    workloads requiring ReadWriteMany access, configured through the CephFilesystem CRD and a corresponding
+    StorageClass.
+  humanURL: https://rook.io/docs/rook/latest/CRDs/Shared-Filesystem/ceph-filesystem-crd/
+  properties:
+  - type: Documentation
+    url: https://rook.io/docs/rook/latest/CRDs/Shared-Filesystem/ceph-filesystem-crd/
+  - type: Reference
+    url: https://rook.io/docs/rook/latest/CRDs/Shared-Filesystem/
+  - type: JSONSchema
+    url: json-schema/rook-ceph-filesystem-schema.json
+  - type: JSONStructure
+    url: json-structure/rook-ceph-filesystem-structure.json
+  tags:
+  - CephFS
+  - File Storage
+  - Kubernetes
+  - POSIX
+  - Shared Filesystem
+- aid: rook:rook-buckets-api
+  name: Rook Buckets API
+  description: >-
+    S3-compatible bucket creation, listing, deletion, and configuration operations on Ceph Object Storage
+    provisioned by Rook
+  humanURL: https://rook.io/docs/rook/latest/CRDs/Cluster/ceph-cluster-crd/
+  tags:
+  - Buckets
+  properties:
+  - type: OpenAPI
+    url: openapi/rook-buckets-api-openapi.yml
+  - type: Documentation
+    url: https://rook.io/docs/rook/latest/CRDs/Object-Storage/ceph-object-store-crd/
+  - type: Reference
+    url: https://rook.io/docs/rook/latest/CRDs/Object-Storage/
+  - type: JSONSchema
+    url: json-schema/rook-ceph-object-store-schema.json
+  - type: JSONStructure
+    url: json-structure/rook-ceph-object-store-structure.json
+- aid: rook:rook-multipart-uploads-api
+  name: Rook Multipart Uploads API
+  description: >-
+    S3-compatible multipart upload operations for large objects, including initiation, part upload, completion,
+    and abort
+  humanURL: https://rook.io/docs/rook/latest/CRDs/Cluster/ceph-cluster-crd/
+  tags:
+  - Multipart Uploads
+  properties:
+  - type: OpenAPI
+    url: openapi/rook-multipart-uploads-api-openapi.yml
+  - type: Documentation
+    url: https://rook.io/docs/rook/latest/CRDs/Object-Storage/ceph-object-store-crd/
+  - type: Reference
+    url: https://rook.io/docs/rook/latest/CRDs/Object-Storage/
+  - type: JSONSchema
+    url: json-schema/rook-ceph-object-store-schema.json
+  - type: JSONStructure
+    url: json-structure/rook-ceph-object-store-structure.json
+- aid: rook:rook-objects-api
+  name: Rook Objects API
+  description: >-
+    S3-compatible object upload, download, listing, deletion, and metadata operations within Ceph Object
+    Storage buckets
+  humanURL: https://rook.io/docs/rook/latest/CRDs/Cluster/ceph-cluster-crd/
+  tags:
+  - Objects
+  properties:
+  - type: OpenAPI
+    url: openapi/rook-objects-api-openapi.yml
+  - type: Documentation
+    url: https://rook.io/docs/rook/latest/CRDs/Object-Storage/ceph-object-store-crd/
+  - type: Reference
+    url: https://rook.io/docs/rook/latest/CRDs/Object-Storage/
+  - type: JSONSchema
+    url: json-schema/rook-ceph-object-store-schema.json
+  - type: JSONStructure
+    url: json-structure/rook-ceph-object-store-structure.json
 common:
   - type: AgenticAccess
     url: agentic-access/rook-agentic-access.yml
