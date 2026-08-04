@@ -1,0 +1,18 @@
+{
+  "provider": "rook",
+  "sources": [
+    "rook-buckets-api-openapi.yml",
+    "rook-multipart-uploads-api-openapi.yml",
+    "rook-objects-api-openapi.yml"
+  ],
+  "outputs": [
+    "rook-buckets-api-openapi.yml",
+    "rook-multipart-uploads-api-openapi.yml",
+    "rook-objects-api-openapi.yml"
+  ],
+  "archived": [],
+  "errors": [],
+  "warnings": [],
+  "notes": [],
+  "skipped": []
+}
