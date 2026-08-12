@@ -163,6 +163,9 @@ apis:
   - type: JSONStructure
     url: json-structure/rook-ceph-object-store-structure.json
 common:
+  - type: License
+    name: Apache-2.0
+    url: https://github.com/rook/rook/blob/master/LICENSE
   - type: AgenticAccess
     url: agentic-access/rook-agentic-access.yml
   - type: DomainSecurity
@@ -187,8 +190,6 @@ common:
     url: vocabulary/rook-vocabulary.yml
   - type: Rules
     url: rules/rook-spectral-rules.yml
-  - type: Capabilities
-    url: capabilities/storage-orchestration.yaml
   - type: Website
     url: https://rook.io
   - type: Documentation
