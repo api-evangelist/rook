@@ -1,0 +1,94 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Rook Ceph Object Storage Buckets API",
+    "version": "1.0.0"
+  },
+  "request": {
+    "auth": {
+      "type": "apikey",
+      "key": "Authorization",
+      "value": "{{Authorization}}",
+      "placement": "header"
+    }
+  },
+  "items": [
+    {
+      "info": {
+        "name": "Buckets",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "List All Buckets",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "http://{rgw-host}:{port}/"
+          },
+          "docs": "Returns a list of all S3 buckets owned by the authenticated user in the Ceph Object Storage gateway. The response includes bucket names and creation dates. Credentials are provided via AWS Signature Version 4 or Version 2 authentication using access keys provisioned by CephObjectStoreUser CRDs."
+        },
+        {
+          "info": {
+            "name": "Create a Bucket",
+            "type": "http"
+          },
+          "http": {
+            "method": "PUT",
+            "url": "http://{rgw-host}:{port}/:bucket",
+            "params": [
+              {
+                "name": "bucket",
+                "value": "",
+                "type": "path",
+                "description": "Name of the S3 bucket in the Ceph Object Storage gateway. Must be globally unique within the object store and follow DNS naming conventions."
+              }
+            ]
+          },
+          "docs": "Creates a new S3 bucket in the Ceph Object Storage gateway with the specified name. The bucket is created in the object store backing pool configured in the CephObjectStore CRD. Optional location constraint and ACL headers can be specified in the request."
+        },
+        {
+          "info": {
+            "name": "Delete a Bucket",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "http://{rgw-host}:{port}/:bucket",
+            "params": [
+              {
+                "name": "bucket",
+                "value": "",
+                "type": "path",
+                "description": "Name of the S3 bucket in the Ceph Object Storage gateway. Must be globally unique within the object store and follow DNS naming conventions."
+              }
+            ]
+          },
+          "docs": "Deletes an empty S3 bucket from the Ceph Object Storage gateway. The bucket must be empty before it can be deleted. Returns HTTP 409 if the bucket is not empty."
+        },
+        {
+          "info": {
+            "name": "Check Bucket Existence and Access",
+            "type": "http"
+          },
+          "http": {
+            "method": "HEAD",
+            "url": "http://{rgw-host}:{port}/:bucket",
+            "params": [
+              {
+                "name": "bucket",
+                "value": "",
+                "type": "path",
+                "description": "Name of the S3 bucket in the Ceph Object Storage gateway. Must be globally unique within the object store and follow DNS naming conventions."
+              }
+            ]
+          },
+          "docs": "Checks whether a bucket exists and whether the caller has permission to access it. Returns HTTP 200 if the bucket exists and is accessible, HTTP 403 if the bucket exists but access is denied, or HTTP 404 if the bucket does not exist."
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

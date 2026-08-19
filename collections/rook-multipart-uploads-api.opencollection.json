@@ -1,0 +1,80 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Rook Ceph Object Storage Buckets Multipart Uploads API",
+    "version": "1.0.0"
+  },
+  "request": {
+    "auth": {
+      "type": "apikey",
+      "key": "Authorization",
+      "value": "{{Authorization}}",
+      "placement": "header"
+    }
+  },
+  "items": [
+    {
+      "info": {
+        "name": "Multipart Uploads",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "List In-Progress Multipart Uploads",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "http://{rgw-host}:{port}/:bucket?uploads",
+            "params": [
+              {
+                "name": "bucket",
+                "value": "",
+                "type": "path",
+                "description": "Name of the S3 bucket in the Ceph Object Storage gateway. Must be globally unique within the object store and follow DNS naming conventions."
+              },
+              {
+                "name": "uploads",
+                "value": "",
+                "type": "query"
+              }
+            ]
+          },
+          "docs": "Returns a list of in-progress multipart uploads for the specified bucket. Useful for identifying and cleaning up incomplete multipart uploads that may be consuming storage quota."
+        },
+        {
+          "info": {
+            "name": "Initiate a Multipart Upload",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "http://{rgw-host}:{port}/:bucket/:key?uploads",
+            "params": [
+              {
+                "name": "bucket",
+                "value": "",
+                "type": "path",
+                "description": "Name of the S3 bucket in the Ceph Object Storage gateway. Must be globally unique within the object store and follow DNS naming conventions."
+              },
+              {
+                "name": "key",
+                "value": "",
+                "type": "path",
+                "description": "Object key (path) within the bucket. Can include forward slashes to simulate a directory hierarchy, with a maximum length of 1024 bytes."
+              },
+              {
+                "name": "uploads",
+                "value": "",
+                "type": "query"
+              }
+            ]
+          },
+          "docs": "Initiates a multipart upload for a large object and returns an upload ID that must be used in subsequent part upload and complete requests. Parts can then be uploaded in parallel using the upload ID. The multipart upload is not visible in the bucket until it is completed with a CompleteMultipartUpload request."
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

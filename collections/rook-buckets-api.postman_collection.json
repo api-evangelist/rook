@@ -1,0 +1,933 @@
+{
+  "item": [
+    {
+      "id": "adc68e48-9c2a-4526-9c26-99a6101ee800",
+      "name": "Buckets",
+      "description": {
+        "content": "S3-compatible bucket creation, listing, deletion, and configuration operations on Ceph Object Storage provisioned by Rook",
+        "type": "text/plain"
+      },
+      "item": [
+        {
+          "id": "957217d4-6117-4002-a926-8a9ce0b066c1",
+          "name": "List All Buckets",
+          "request": {
+            "name": "List All Buckets",
+            "description": {
+              "content": "Returns a list of all S3 buckets owned by the authenticated user in the Ceph Object Storage gateway. The response includes bucket names and creation dates. Credentials are provided via AWS Signature Version 4 or Version 2 authentication using access keys provisioned by CephObjectStoreUser CRDs.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                ""
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "description": "Kubernetes Service hostname for the RGW endpoint as created by the CephObjectStore CRD. Format is rook-ceph-rgw-{store-name}.{namespace}.svc",
+                  "type": "any",
+                  "value": "{{rgw-host}}",
+                  "key": "rgw-host"
+                },
+                {
+                  "description": "Port for the RGW service, typically 80 for HTTP or 443 for HTTPS as configured in the CephObjectStore gateway spec",
+                  "type": "any",
+                  "value": "{{port}}",
+                  "key": "port"
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/xml"
+              }
+            ],
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "e36d9c83-e854-40f7-b49b-c99a1fb1a428",
+              "name": "List of buckets owned by the authenticated user",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    ""
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "description": "Kubernetes Service hostname for the RGW endpoint as created by the CephObjectStore CRD. Format is rook-ceph-rgw-{store-name}.{namespace}.svc",
+                      "type": "any",
+                      "value": "{{rgw-host}}",
+                      "key": "rgw-host"
+                    },
+                    {
+                      "description": "Port for the RGW service, typically 80 for HTTP or 443 for HTTPS as configured in the CephObjectStore gateway spec",
+                      "type": "any",
+                      "value": "{{port}}",
+                      "key": "port"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/xml"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/xml"
+                }
+              ],
+              "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<element>\n  <Owner>\n    <ID>(string)</ID>\n    <DisplayName>(string)</DisplayName>\n  </Owner>\n  <Buckets>\n    <Bucket>\n      <Name>(string)</Name>\n      <CreationDate>(string)</CreationDate>\n    </Bucket>\n    <Bucket>\n      <Name>(string)</Name>\n      <CreationDate>(string)</CreationDate>\n    </Bucket>\n  </Buckets>\n</element>",
+              "cookie": [],
+              "_postman_previewlanguage": "xml"
+            },
+            {
+              "id": "95ef4d4f-926f-43e4-8d52-97e25efab268",
+              "name": "Authentication credentials are missing or invalid",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    ""
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "description": "Kubernetes Service hostname for the RGW endpoint as created by the CephObjectStore CRD. Format is rook-ceph-rgw-{store-name}.{namespace}.svc",
+                      "type": "any",
+                      "value": "{{rgw-host}}",
+                      "key": "rgw-host"
+                    },
+                    {
+                      "description": "Port for the RGW service, typically 80 for HTTP or 443 for HTTPS as configured in the CephObjectStore gateway spec",
+                      "type": "any",
+                      "value": "{{port}}",
+                      "key": "port"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/xml"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/xml"
+                }
+              ],
+              "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<element>\n  <Code>(string)</Code>\n  <Message>(string)</Message>\n  <Resource>(string)</Resource>\n  <RequestId>(string)</RequestId>\n</element>",
+              "cookie": [],
+              "_postman_previewlanguage": "xml"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "2bbd91ee-b63f-4788-a333-a925536e473d",
+          "name": "Create a Bucket",
+          "request": {
+            "name": "Create a Bucket",
+            "description": {
+              "content": "Creates a new S3 bucket in the Ceph Object Storage gateway with the specified name. The bucket is created in the object store backing pool configured in the CephObjectStore CRD. Optional location constraint and ACL headers can be specified in the request.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                ":bucket"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<string>",
+                  "key": "bucket",
+                  "description": "(Required) Name of the S3 bucket in the Ceph Object Storage gateway. Must be globally unique within the object store and follow DNS naming conventions."
+                },
+                {
+                  "description": "Kubernetes Service hostname for the RGW endpoint as created by the CephObjectStore CRD. Format is rook-ceph-rgw-{store-name}.{namespace}.svc",
+                  "type": "any",
+                  "value": "{{rgw-host}}",
+                  "key": "rgw-host"
+                },
+                {
+                  "description": "Port for the RGW service, typically 80 for HTTP or 443 for HTTPS as configured in the CephObjectStore gateway spec",
+                  "type": "any",
+                  "value": "{{port}}",
+                  "key": "port"
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/xml"
+              }
+            ],
+            "method": "PUT",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "456c5bb5-742e-4320-9444-dc621b31a23c",
+              "name": "Bucket created successfully",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    ":bucket"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "bucket",
+                      "description": "(Required) Name of the S3 bucket in the Ceph Object Storage gateway. Must be globally unique within the object store and follow DNS naming conventions."
+                    },
+                    {
+                      "description": "Kubernetes Service hostname for the RGW endpoint as created by the CephObjectStore CRD. Format is rook-ceph-rgw-{store-name}.{namespace}.svc",
+                      "type": "any",
+                      "value": "{{rgw-host}}",
+                      "key": "rgw-host"
+                    },
+                    {
+                      "description": "Port for the RGW service, typically 80 for HTTP or 443 for HTTPS as configured in the CephObjectStore gateway spec",
+                      "type": "any",
+                      "value": "{{port}}",
+                      "key": "port"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  }
+                ],
+                "method": "PUT",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            },
+            {
+              "id": "92afc0de-aaa5-46fd-a343-323a7d694a79",
+              "name": "Bad request. The bucket name is invalid or a required parameter is missing.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    ":bucket"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "bucket",
+                      "description": "(Required) Name of the S3 bucket in the Ceph Object Storage gateway. Must be globally unique within the object store and follow DNS naming conventions."
+                    },
+                    {
+                      "description": "Kubernetes Service hostname for the RGW endpoint as created by the CephObjectStore CRD. Format is rook-ceph-rgw-{store-name}.{namespace}.svc",
+                      "type": "any",
+                      "value": "{{rgw-host}}",
+                      "key": "rgw-host"
+                    },
+                    {
+                      "description": "Port for the RGW service, typically 80 for HTTP or 443 for HTTPS as configured in the CephObjectStore gateway spec",
+                      "type": "any",
+                      "value": "{{port}}",
+                      "key": "port"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/xml"
+                  }
+                ],
+                "method": "PUT",
+                "body": {}
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/xml"
+                }
+              ],
+              "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<element>\n  <Code>(string)</Code>\n  <Message>(string)</Message>\n  <Resource>(string)</Resource>\n  <RequestId>(string)</RequestId>\n</element>",
+              "cookie": [],
+              "_postman_previewlanguage": "xml"
+            },
+            {
+              "id": "2acd632a-1238-44c3-bef3-d77c14ffeea0",
+              "name": "Conflict. A bucket with the specified name already exists and is owned by a different account.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    ":bucket"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "bucket",
+                      "description": "(Required) Name of the S3 bucket in the Ceph Object Storage gateway. Must be globally unique within the object store and follow DNS naming conventions."
+                    },
+                    {
+                      "description": "Kubernetes Service hostname for the RGW endpoint as created by the CephObjectStore CRD. Format is rook-ceph-rgw-{store-name}.{namespace}.svc",
+                      "type": "any",
+                      "value": "{{rgw-host}}",
+                      "key": "rgw-host"
+                    },
+                    {
+                      "description": "Port for the RGW service, typically 80 for HTTP or 443 for HTTPS as configured in the CephObjectStore gateway spec",
+                      "type": "any",
+                      "value": "{{port}}",
+                      "key": "port"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/xml"
+                  }
+                ],
+                "method": "PUT",
+                "body": {}
+              },
+              "status": "Conflict",
+              "code": 409,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/xml"
+                }
+              ],
+              "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<element>\n  <Code>(string)</Code>\n  <Message>(string)</Message>\n  <Resource>(string)</Resource>\n  <RequestId>(string)</RequestId>\n</element>",
+              "cookie": [],
+              "_postman_previewlanguage": "xml"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "d244187e-3394-4007-a227-cf7b08acacbd",
+          "name": "Check Bucket Existence and Access",
+          "request": {
+            "name": "Check Bucket Existence and Access",
+            "description": {
+              "content": "Checks whether a bucket exists and whether the caller has permission to access it. Returns HTTP 200 if the bucket exists and is accessible, HTTP 403 if the bucket exists but access is denied, or HTTP 404 if the bucket does not exist.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                ":bucket"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<string>",
+                  "key": "bucket",
+                  "description": "(Required) Name of the S3 bucket in the Ceph Object Storage gateway. Must be globally unique within the object store and follow DNS naming conventions."
+                },
+                {
+                  "description": "Kubernetes Service hostname for the RGW endpoint as created by the CephObjectStore CRD. Format is rook-ceph-rgw-{store-name}.{namespace}.svc",
+                  "type": "any",
+                  "value": "{{rgw-host}}",
+                  "key": "rgw-host"
+                },
+                {
+                  "description": "Port for the RGW service, typically 80 for HTTP or 443 for HTTPS as configured in the CephObjectStore gateway spec",
+                  "type": "any",
+                  "value": "{{port}}",
+                  "key": "port"
+                }
+              ]
+            },
+            "method": "HEAD",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "c10f438a-25fd-496c-bd75-07144e2c0bbf",
+              "name": "Bucket exists and is accessible",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    ":bucket"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "bucket",
+                      "description": "(Required) Name of the S3 bucket in the Ceph Object Storage gateway. Must be globally unique within the object store and follow DNS naming conventions."
+                    },
+                    {
+                      "description": "Kubernetes Service hostname for the RGW endpoint as created by the CephObjectStore CRD. Format is rook-ceph-rgw-{store-name}.{namespace}.svc",
+                      "type": "any",
+                      "value": "{{rgw-host}}",
+                      "key": "rgw-host"
+                    },
+                    {
+                      "description": "Port for the RGW service, typically 80 for HTTP or 443 for HTTPS as configured in the CephObjectStore gateway spec",
+                      "type": "any",
+                      "value": "{{port}}",
+                      "key": "port"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  }
+                ],
+                "method": "HEAD",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            },
+            {
+              "id": "7edc09dc-932e-4d8e-9bf4-610b13b583fc",
+              "name": "Bucket exists but access is denied",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    ":bucket"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "bucket",
+                      "description": "(Required) Name of the S3 bucket in the Ceph Object Storage gateway. Must be globally unique within the object store and follow DNS naming conventions."
+                    },
+                    {
+                      "description": "Kubernetes Service hostname for the RGW endpoint as created by the CephObjectStore CRD. Format is rook-ceph-rgw-{store-name}.{namespace}.svc",
+                      "type": "any",
+                      "value": "{{rgw-host}}",
+                      "key": "rgw-host"
+                    },
+                    {
+                      "description": "Port for the RGW service, typically 80 for HTTP or 443 for HTTPS as configured in the CephObjectStore gateway spec",
+                      "type": "any",
+                      "value": "{{port}}",
+                      "key": "port"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  }
+                ],
+                "method": "HEAD",
+                "body": {}
+              },
+              "status": "Forbidden",
+              "code": 403,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            },
+            {
+              "id": "35f4887e-1739-4202-978a-17bc0b1b44ee",
+              "name": "Bucket does not exist",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    ":bucket"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "bucket",
+                      "description": "(Required) Name of the S3 bucket in the Ceph Object Storage gateway. Must be globally unique within the object store and follow DNS naming conventions."
+                    },
+                    {
+                      "description": "Kubernetes Service hostname for the RGW endpoint as created by the CephObjectStore CRD. Format is rook-ceph-rgw-{store-name}.{namespace}.svc",
+                      "type": "any",
+                      "value": "{{rgw-host}}",
+                      "key": "rgw-host"
+                    },
+                    {
+                      "description": "Port for the RGW service, typically 80 for HTTP or 443 for HTTPS as configured in the CephObjectStore gateway spec",
+                      "type": "any",
+                      "value": "{{port}}",
+                      "key": "port"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  }
+                ],
+                "method": "HEAD",
+                "body": {}
+              },
+              "status": "Not Found",
+              "code": 404,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "3a876f6e-8bff-4918-8690-ec4587c7702f",
+          "name": "Delete a Bucket",
+          "request": {
+            "name": "Delete a Bucket",
+            "description": {
+              "content": "Deletes an empty S3 bucket from the Ceph Object Storage gateway. The bucket must be empty before it can be deleted. Returns HTTP 409 if the bucket is not empty.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                ":bucket"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<string>",
+                  "key": "bucket",
+                  "description": "(Required) Name of the S3 bucket in the Ceph Object Storage gateway. Must be globally unique within the object store and follow DNS naming conventions."
+                },
+                {
+                  "description": "Kubernetes Service hostname for the RGW endpoint as created by the CephObjectStore CRD. Format is rook-ceph-rgw-{store-name}.{namespace}.svc",
+                  "type": "any",
+                  "value": "{{rgw-host}}",
+                  "key": "rgw-host"
+                },
+                {
+                  "description": "Port for the RGW service, typically 80 for HTTP or 443 for HTTPS as configured in the CephObjectStore gateway spec",
+                  "type": "any",
+                  "value": "{{port}}",
+                  "key": "port"
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/xml"
+              }
+            ],
+            "method": "DELETE",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "c7f2907a-9b19-4c98-9731-633e34b744c9",
+              "name": "Bucket deleted successfully",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    ":bucket"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "bucket",
+                      "description": "(Required) Name of the S3 bucket in the Ceph Object Storage gateway. Must be globally unique within the object store and follow DNS naming conventions."
+                    },
+                    {
+                      "description": "Kubernetes Service hostname for the RGW endpoint as created by the CephObjectStore CRD. Format is rook-ceph-rgw-{store-name}.{namespace}.svc",
+                      "type": "any",
+                      "value": "{{rgw-host}}",
+                      "key": "rgw-host"
+                    },
+                    {
+                      "description": "Port for the RGW service, typically 80 for HTTP or 443 for HTTPS as configured in the CephObjectStore gateway spec",
+                      "type": "any",
+                      "value": "{{port}}",
+                      "key": "port"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  }
+                ],
+                "method": "DELETE",
+                "body": {}
+              },
+              "status": "No Content",
+              "code": 204,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            },
+            {
+              "id": "7f4ef43e-ba1f-4912-af64-80abd111c8e8",
+              "name": "Bucket not found",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    ":bucket"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "bucket",
+                      "description": "(Required) Name of the S3 bucket in the Ceph Object Storage gateway. Must be globally unique within the object store and follow DNS naming conventions."
+                    },
+                    {
+                      "description": "Kubernetes Service hostname for the RGW endpoint as created by the CephObjectStore CRD. Format is rook-ceph-rgw-{store-name}.{namespace}.svc",
+                      "type": "any",
+                      "value": "{{rgw-host}}",
+                      "key": "rgw-host"
+                    },
+                    {
+                      "description": "Port for the RGW service, typically 80 for HTTP or 443 for HTTPS as configured in the CephObjectStore gateway spec",
+                      "type": "any",
+                      "value": "{{port}}",
+                      "key": "port"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/xml"
+                  }
+                ],
+                "method": "DELETE",
+                "body": {}
+              },
+              "status": "Not Found",
+              "code": 404,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/xml"
+                }
+              ],
+              "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<element>\n  <Code>(string)</Code>\n  <Message>(string)</Message>\n  <Resource>(string)</Resource>\n  <RequestId>(string)</RequestId>\n</element>",
+              "cookie": [],
+              "_postman_previewlanguage": "xml"
+            },
+            {
+              "id": "8d300092-c67d-4554-b258-d357fb34432a",
+              "name": "Bucket is not empty and cannot be deleted",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    ":bucket"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "bucket",
+                      "description": "(Required) Name of the S3 bucket in the Ceph Object Storage gateway. Must be globally unique within the object store and follow DNS naming conventions."
+                    },
+                    {
+                      "description": "Kubernetes Service hostname for the RGW endpoint as created by the CephObjectStore CRD. Format is rook-ceph-rgw-{store-name}.{namespace}.svc",
+                      "type": "any",
+                      "value": "{{rgw-host}}",
+                      "key": "rgw-host"
+                    },
+                    {
+                      "description": "Port for the RGW service, typically 80 for HTTP or 443 for HTTPS as configured in the CephObjectStore gateway spec",
+                      "type": "any",
+                      "value": "{{port}}",
+                      "key": "port"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/xml"
+                  }
+                ],
+                "method": "DELETE",
+                "body": {}
+              },
+              "status": "Conflict",
+              "code": 409,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/xml"
+                }
+              ],
+              "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<element>\n  <Code>(string)</Code>\n  <Message>(string)</Message>\n  <Resource>(string)</Resource>\n  <RequestId>(string)</RequestId>\n</element>",
+              "cookie": [],
+              "_postman_previewlanguage": "xml"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        }
+      ],
+      "event": []
+    }
+  ],
+  "event": [],
+  "variable": [
+    {
+      "description": {
+        "content": "Kubernetes Service hostname for the RGW endpoint as created by the CephObjectStore CRD. Format is rook-ceph-rgw-{store-name}.{namespace}.svc",
+        "type": "text/plain"
+      },
+      "type": "any",
+      "value": "rook-ceph-rgw-my-store.rook-ceph.svc",
+      "key": "rgw-host"
+    },
+    {
+      "description": {
+        "content": "Port for the RGW service, typically 80 for HTTP or 443 for HTTPS as configured in the CephObjectStore gateway spec",
+        "type": "text/plain"
+      },
+      "type": "any",
+      "value": "80",
+      "key": "port"
+    },
+    {
+      "type": "string",
+      "value": "http://{{rgw-host}}:{{port}}",
+      "key": "baseUrl"
+    }
+  ],
+  "auth": {
+    "type": "apikey",
+    "apikey": [
+      {
+        "key": "key",
+        "value": "Authorization"
+      },
+      {
+        "key": "value",
+        "value": "{{apiKey}}"
+      },
+      {
+        "key": "in",
+        "value": "header"
+      }
+    ]
+  },
+  "info": {
+    "_postman_id": "5835dea2-7cef-466a-a788-74e6cc05972a",
+    "name": "Rook Ceph Object Storage Buckets API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": {
+      "content": "Rook provisions Ceph Object Storage gateways (Ceph RADOS Gateway / RGW) that expose an S3-compatible REST API for object storage operations. The gateway is managed through Rook CephObjectStore and CephObjectStoreUser Kubernetes CRDs. Applications interact with the object storage using standard S3 API semantics including bucket operations, object CRUD, multipart uploads, access control lists, and presigned URLs. User credentials are provisioned via CephObjectStoreUser CRDs and accessed through Kubernetes Secrets.\n\nContact Support:\n Name: Rook Community",
+      "type": "text/plain"
+    }
+  }
+}

@@ -1,0 +1,473 @@
+{
+  "item": [
+    {
+      "id": "8eb24126-9aa6-44b9-a97d-9b3c87e733b1",
+      "name": "Multipart Uploads",
+      "description": {
+        "content": "S3-compatible multipart upload operations for large objects, including initiation, part upload, completion, and abort",
+        "type": "text/plain"
+      },
+      "item": [
+        {
+          "id": "b58a8cfc-15cd-4878-a6a0-bb4a29ea04c2",
+          "name": "List In-Progress Multipart Uploads",
+          "request": {
+            "name": "List In-Progress Multipart Uploads",
+            "description": {
+              "content": "Returns a list of in-progress multipart uploads for the specified bucket. Useful for identifying and cleaning up incomplete multipart uploads that may be consuming storage quota.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "{{bucket}}"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [
+                {
+                  "key": "uploads",
+                  "value": "null"
+                },
+                {
+                  "disabled": false,
+                  "key": "uploads",
+                  "value": "<string>",
+                  "description": "(Required) "
+                }
+              ],
+              "variable": [
+                {
+                  "description": "Kubernetes Service hostname for the RGW endpoint as created by the CephObjectStore CRD. Format is rook-ceph-rgw-{store-name}.{namespace}.svc",
+                  "type": "any",
+                  "value": "{{rgw-host}}",
+                  "key": "rgw-host"
+                },
+                {
+                  "description": "Port for the RGW service, typically 80 for HTTP or 443 for HTTPS as configured in the CephObjectStore gateway spec",
+                  "type": "any",
+                  "value": "{{port}}",
+                  "key": "port"
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/xml"
+              }
+            ],
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "d24f3c29-1723-4334-bb99-ee05ce3d8cdf",
+              "name": "List of in-progress multipart uploads",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "{{bucket}}"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "uploads",
+                      "value": "<string>"
+                    }
+                  ],
+                  "variable": [
+                    {
+                      "description": "Kubernetes Service hostname for the RGW endpoint as created by the CephObjectStore CRD. Format is rook-ceph-rgw-{store-name}.{namespace}.svc",
+                      "type": "any",
+                      "value": "{{rgw-host}}",
+                      "key": "rgw-host"
+                    },
+                    {
+                      "description": "Port for the RGW service, typically 80 for HTTP or 443 for HTTPS as configured in the CephObjectStore gateway spec",
+                      "type": "any",
+                      "value": "{{port}}",
+                      "key": "port"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/xml"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/xml"
+                }
+              ],
+              "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<element>\n  <Bucket>(string)</Bucket>\n  <Upload>\n    <Key>(string)</Key>\n    <UploadId>(string)</UploadId>\n    <Initiated>(string)</Initiated>\n    <Initiator>\n      <ID>(string)</ID>\n      <DisplayName>(string)</DisplayName>\n    </Initiator>\n  </Upload>\n  <Upload>\n    <Key>(string)</Key>\n    <UploadId>(string)</UploadId>\n    <Initiated>(string)</Initiated>\n    <Initiator>\n      <ID>(string)</ID>\n      <DisplayName>(string)</DisplayName>\n    </Initiator>\n  </Upload>\n</element>",
+              "cookie": [],
+              "_postman_previewlanguage": "xml"
+            },
+            {
+              "id": "903528ec-4dfd-4dbb-855a-807779cfe0c2",
+              "name": "Bucket not found",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "{{bucket}}"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "uploads",
+                      "value": "<string>"
+                    }
+                  ],
+                  "variable": [
+                    {
+                      "description": "Kubernetes Service hostname for the RGW endpoint as created by the CephObjectStore CRD. Format is rook-ceph-rgw-{store-name}.{namespace}.svc",
+                      "type": "any",
+                      "value": "{{rgw-host}}",
+                      "key": "rgw-host"
+                    },
+                    {
+                      "description": "Port for the RGW service, typically 80 for HTTP or 443 for HTTPS as configured in the CephObjectStore gateway spec",
+                      "type": "any",
+                      "value": "{{port}}",
+                      "key": "port"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/xml"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Not Found",
+              "code": 404,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/xml"
+                }
+              ],
+              "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<element>\n  <Code>(string)</Code>\n  <Message>(string)</Message>\n  <Resource>(string)</Resource>\n  <RequestId>(string)</RequestId>\n</element>",
+              "cookie": [],
+              "_postman_previewlanguage": "xml"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "adcd32cd-e5ea-4919-b72c-901a502e1cce",
+          "name": "Initiate a Multipart Upload",
+          "request": {
+            "name": "Initiate a Multipart Upload",
+            "description": {
+              "content": "Initiates a multipart upload for a large object and returns an upload ID that must be used in subsequent part upload and complete requests. Parts can then be uploaded in parallel using the upload ID. The multipart upload is not visible in the bucket until it is completed with a CompleteMultipartUpload request.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                ":bucket",
+                "{{key}}"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [
+                {
+                  "key": "uploads",
+                  "value": "null"
+                },
+                {
+                  "disabled": false,
+                  "key": "uploads",
+                  "value": "<string>",
+                  "description": "(Required) "
+                }
+              ],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<string>",
+                  "key": "bucket",
+                  "description": "(Required) Name of the S3 bucket in the Ceph Object Storage gateway. Must be globally unique within the object store and follow DNS naming conventions."
+                },
+                {
+                  "description": "Kubernetes Service hostname for the RGW endpoint as created by the CephObjectStore CRD. Format is rook-ceph-rgw-{store-name}.{namespace}.svc",
+                  "type": "any",
+                  "value": "{{rgw-host}}",
+                  "key": "rgw-host"
+                },
+                {
+                  "description": "Port for the RGW service, typically 80 for HTTP or 443 for HTTPS as configured in the CephObjectStore gateway spec",
+                  "type": "any",
+                  "value": "{{port}}",
+                  "key": "port"
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/xml"
+              }
+            ],
+            "method": "POST",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "c8acb446-f1c6-4507-8861-d07389fca014",
+              "name": "Multipart upload initiated with upload ID returned",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    ":bucket",
+                    "{{key}}"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "uploads",
+                      "value": "<string>"
+                    }
+                  ],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "bucket",
+                      "description": "(Required) Name of the S3 bucket in the Ceph Object Storage gateway. Must be globally unique within the object store and follow DNS naming conventions."
+                    },
+                    {
+                      "description": "Kubernetes Service hostname for the RGW endpoint as created by the CephObjectStore CRD. Format is rook-ceph-rgw-{store-name}.{namespace}.svc",
+                      "type": "any",
+                      "value": "{{rgw-host}}",
+                      "key": "rgw-host"
+                    },
+                    {
+                      "description": "Port for the RGW service, typically 80 for HTTP or 443 for HTTPS as configured in the CephObjectStore gateway spec",
+                      "type": "any",
+                      "value": "{{port}}",
+                      "key": "port"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/xml"
+                  }
+                ],
+                "method": "POST",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/xml"
+                }
+              ],
+              "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<element>\n  <Bucket>(string)</Bucket>\n  <Key>(string)</Key>\n  <UploadId>(string)</UploadId>\n</element>",
+              "cookie": [],
+              "_postman_previewlanguage": "xml"
+            },
+            {
+              "id": "5eafc240-993a-472f-bc9b-7735fa8f34d3",
+              "name": "Bucket not found",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    ":bucket",
+                    "{{key}}"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "uploads",
+                      "value": "<string>"
+                    }
+                  ],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "bucket",
+                      "description": "(Required) Name of the S3 bucket in the Ceph Object Storage gateway. Must be globally unique within the object store and follow DNS naming conventions."
+                    },
+                    {
+                      "description": "Kubernetes Service hostname for the RGW endpoint as created by the CephObjectStore CRD. Format is rook-ceph-rgw-{store-name}.{namespace}.svc",
+                      "type": "any",
+                      "value": "{{rgw-host}}",
+                      "key": "rgw-host"
+                    },
+                    {
+                      "description": "Port for the RGW service, typically 80 for HTTP or 443 for HTTPS as configured in the CephObjectStore gateway spec",
+                      "type": "any",
+                      "value": "{{port}}",
+                      "key": "port"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/xml"
+                  }
+                ],
+                "method": "POST",
+                "body": {}
+              },
+              "status": "Not Found",
+              "code": 404,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/xml"
+                }
+              ],
+              "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<element>\n  <Code>(string)</Code>\n  <Message>(string)</Message>\n  <Resource>(string)</Resource>\n  <RequestId>(string)</RequestId>\n</element>",
+              "cookie": [],
+              "_postman_previewlanguage": "xml"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        }
+      ],
+      "event": []
+    }
+  ],
+  "event": [],
+  "variable": [
+    {
+      "description": {
+        "content": "Kubernetes Service hostname for the RGW endpoint as created by the CephObjectStore CRD. Format is rook-ceph-rgw-{store-name}.{namespace}.svc",
+        "type": "text/plain"
+      },
+      "type": "any",
+      "value": "rook-ceph-rgw-my-store.rook-ceph.svc",
+      "key": "rgw-host"
+    },
+    {
+      "description": {
+        "content": "Port for the RGW service, typically 80 for HTTP or 443 for HTTPS as configured in the CephObjectStore gateway spec",
+        "type": "text/plain"
+      },
+      "type": "any",
+      "value": "80",
+      "key": "port"
+    },
+    {
+      "type": "string",
+      "value": "http://{{rgw-host}}:{{port}}",
+      "key": "baseUrl"
+    },
+    {
+      "disabled": false,
+      "description": {
+        "content": "(Required) Name of the S3 bucket in the Ceph Object Storage gateway. Must be globally unique within the object store and follow DNS naming conventions.",
+        "type": "text/plain"
+      },
+      "type": "any",
+      "value": "<string>",
+      "key": "bucket"
+    },
+    {
+      "disabled": false,
+      "description": {
+        "content": "(Required) Object key (path) within the bucket. Can include forward slashes to simulate a directory hierarchy, with a maximum length of 1024 bytes.",
+        "type": "text/plain"
+      },
+      "type": "any",
+      "value": "<string>",
+      "key": "key"
+    }
+  ],
+  "auth": {
+    "type": "apikey",
+    "apikey": [
+      {
+        "key": "key",
+        "value": "Authorization"
+      },
+      {
+        "key": "value",
+        "value": "{{apiKey}}"
+      },
+      {
+        "key": "in",
+        "value": "header"
+      }
+    ]
+  },
+  "info": {
+    "_postman_id": "77b86f57-f142-427e-9553-e84e06f8619e",
+    "name": "Rook Ceph Object Storage Buckets Multipart Uploads API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": {
+      "content": "Rook provisions Ceph Object Storage gateways (Ceph RADOS Gateway / RGW) that expose an S3-compatible REST API for object storage operations. The gateway is managed through Rook CephObjectStore and CephObjectStoreUser Kubernetes CRDs. Applications interact with the object storage using standard S3 API semantics including bucket operations, object CRUD, multipart uploads, access control lists, and presigned URLs. User credentials are provisioned via CephObjectStoreUser CRDs and accessed through Kubernetes Secrets.\n\nContact Support:\n Name: Rook Community",
+      "type": "text/plain"
+    }
+  }
+}
