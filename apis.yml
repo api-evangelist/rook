@@ -1,4 +1,17 @@
 aid: rook
+deliveryModel:
+  model: self-hosted
+  license: Apache-2.0
+  open_source: true
+  commercial: false
+  callable_host: false
+  label: Self-hosted open source · you run it yourself
+  confidence: high
+  source:
+  - license
+  - openapi
+  generated: '2026-08-28'
+  method: derived
 accessModel:
   pricing: freemium
   onboarding: self-serve
@@ -174,6 +187,14 @@ apis:
   - type: JSONStructure
     url: json-structure/rook-ceph-object-store-structure.json
 common:
+  - type: IssueTracker
+    url: https://github.com/rook/rook/issues
+  - type: Releases
+    url: https://github.com/rook/rook/releases
+  - type: CodeOfConduct
+    url: https://github.com/rook/rook/blob/master/CODE_OF_CONDUCT.md
+  - type: ContributionGuide
+    url: https://github.com/rook/rook/blob/master/CONTRIBUTING.md
   - type: License
     name: Apache-2.0
     url: https://github.com/rook/rook/blob/master/LICENSE
