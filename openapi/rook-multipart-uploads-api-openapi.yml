@@ -1,7 +1,7 @@
-openapi: 3.1.0
+openapi: 3.2.0
 info:
-  title: Rook Ceph Object Storage Buckets Multipart Uploads API
-  description: Rook provisions Ceph Object Storage gateways (Ceph RADOS Gateway / RGW) that expose an S3-compatible REST API for object storage operations. The gateway is managed through Rook CephObjectStore and CephObjectStoreUser Kubernetes CRDs. Applications interact with the object storage using standard S3 API semantics including bucket operations, object CRUD, multipart uploads, access control lists, and presigned URLs. User credentials are provisioned via CephObjectStoreUser CRDs and accessed through Kubernetes Secrets.
+  title: Rook Ceph Object Storage Multipart Uploads API
+  description: Rook provisions Ceph Object Storage gateways (Ceph RADOS Gateway / RGW) that expose an S3-compatible REST API for object storage operations.
   version: 1.0.0
   contact:
     name: Rook Community
@@ -86,19 +86,22 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
 components:
   schemas:
-    InitiateMultipartUploadResult:
+    ErrorResponse:
       type: object
-      description: Response to a multipart upload initiation request containing the upload ID needed for subsequent part uploads
+      description: S3-compatible error response returned when an operation fails
       properties:
-        Bucket:
+        Code:
           type: string
-          description: Name of the bucket where the object will be stored
-        Key:
+          description: S3 error code string identifying the type of error, e.g. NoSuchBucket, AccessDenied, InvalidBucketName
+        Message:
           type: string
-          description: Object key for the multipart upload
-        UploadId:
+          description: Human-readable description of the error
+        Resource:
           type: string
-          description: Unique identifier for this multipart upload, required in all subsequent part upload and complete/abort requests
+          description: The bucket or object key that caused the error
+        RequestId:
+          type: string
+          description: Unique identifier for the failed request for debugging
     ListMultipartUploadsResult:
       type: object
       description: Response listing in-progress multipart uploads for a bucket
@@ -129,22 +132,19 @@ components:
                     type: string
                   DisplayName:
                     type: string
-    ErrorResponse:
+    InitiateMultipartUploadResult:
       type: object
-      description: S3-compatible error response returned when an operation fails
+      description: Response to a multipart upload initiation request containing the upload ID needed for subsequent part uploads
       properties:
-        Code:
+        Bucket:
           type: string
-          description: S3 error code string identifying the type of error, e.g. NoSuchBucket, AccessDenied, InvalidBucketName
-        Message:
+          description: Name of the bucket where the object will be stored
+        Key:
           type: string
-          description: Human-readable description of the error
-        Resource:
+          description: Object key for the multipart upload
+        UploadId:
           type: string
-          description: The bucket or object key that caused the error
-        RequestId:
-          type: string
-          description: Unique identifier for the failed request for debugging
+          description: Unique identifier for this multipart upload, required in all subsequent part upload and complete/abort requests
   parameters:
     BucketParam:
       name: bucket

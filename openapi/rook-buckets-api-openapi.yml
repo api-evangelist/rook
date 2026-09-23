@@ -1,7 +1,7 @@
-openapi: 3.1.0
+openapi: 3.2.0
 info:
   title: Rook Ceph Object Storage Buckets API
-  description: Rook provisions Ceph Object Storage gateways (Ceph RADOS Gateway / RGW) that expose an S3-compatible REST API for object storage operations. The gateway is managed through Rook CephObjectStore and CephObjectStoreUser Kubernetes CRDs. Applications interact with the object storage using standard S3 API semantics including bucket operations, object CRUD, multipart uploads, access control lists, and presigned URLs. User credentials are provisioned via CephObjectStoreUser CRDs and accessed through Kubernetes Secrets.
+  description: Rook provisions Ceph Object Storage gateways (Ceph RADOS Gateway / RGW) that expose an S3-compatible REST API for object storage operations.
   version: 1.0.0
   contact:
     name: Rook Community
@@ -102,29 +102,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 components:
-  parameters:
-    BucketParam:
-      name: bucket
-      in: path
-      required: true
-      description: Name of the S3 bucket in the Ceph Object Storage gateway. Must be globally unique within the object store and follow DNS naming conventions.
-      schema:
-        type: string
-        minLength: 3
-        maxLength: 63
-        pattern: ^[a-z0-9][a-z0-9\-]*[a-z0-9]$
   schemas:
-    Bucket:
-      type: object
-      description: An S3 bucket in the Ceph Object Storage gateway
-      properties:
-        Name:
-          type: string
-          description: Name of the bucket
-        CreationDate:
-          type: string
-          format: date-time
-          description: Date and time the bucket was created in ISO 8601 format
     ListAllMyBucketsResult:
       type: object
       description: Response to a list buckets request containing all buckets owned by the authenticated user
@@ -164,6 +142,28 @@ components:
         RequestId:
           type: string
           description: Unique identifier for the failed request for debugging
+    Bucket:
+      type: object
+      description: An S3 bucket in the Ceph Object Storage gateway
+      properties:
+        Name:
+          type: string
+          description: Name of the bucket
+        CreationDate:
+          type: string
+          format: date-time
+          description: Date and time the bucket was created in ISO 8601 format
+  parameters:
+    BucketParam:
+      name: bucket
+      in: path
+      required: true
+      description: Name of the S3 bucket in the Ceph Object Storage gateway. Must be globally unique within the object store and follow DNS naming conventions.
+      schema:
+        type: string
+        minLength: 3
+        maxLength: 63
+        pattern: ^[a-z0-9][a-z0-9\-]*[a-z0-9]$
   securitySchemes:
     s3Auth:
       type: apiKey
