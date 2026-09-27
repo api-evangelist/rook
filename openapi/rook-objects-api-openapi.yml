@@ -186,6 +186,37 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
 components:
   schemas:
+    Object:
+      type: object
+      description: An S3 object stored in a Ceph Object Storage bucket
+      properties:
+        Key:
+          type: string
+          description: Object key within the bucket
+        LastModified:
+          type: string
+          format: date-time
+          description: Date and time the object was last modified
+        ETag:
+          type: string
+          description: MD5 hash of the object data enclosed in double quotes, used for data integrity verification
+        Size:
+          type: integer
+          description: Size of the object in bytes
+        StorageClass:
+          type: string
+          description: Storage class of the object
+          enum:
+          - STANDARD
+          - REDUCED_REDUNDANCY
+        Owner:
+          type: object
+          description: Owner of the object
+          properties:
+            ID:
+              type: string
+            DisplayName:
+              type: string
     ErrorResponse:
       type: object
       description: S3-compatible error response returned when an operation fails
@@ -238,37 +269,6 @@ components:
               Prefix:
                 type: string
                 description: Common prefix string for grouped keys
-    Object:
-      type: object
-      description: An S3 object stored in a Ceph Object Storage bucket
-      properties:
-        Key:
-          type: string
-          description: Object key within the bucket
-        LastModified:
-          type: string
-          format: date-time
-          description: Date and time the object was last modified
-        ETag:
-          type: string
-          description: MD5 hash of the object data enclosed in double quotes, used for data integrity verification
-        Size:
-          type: integer
-          description: Size of the object in bytes
-        StorageClass:
-          type: string
-          description: Storage class of the object
-          enum:
-          - STANDARD
-          - REDUCED_REDUNDANCY
-        Owner:
-          type: object
-          description: Owner of the object
-          properties:
-            ID:
-              type: string
-            DisplayName:
-              type: string
   parameters:
     BucketParam:
       name: bucket
