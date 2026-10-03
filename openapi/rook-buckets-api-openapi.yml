@@ -114,6 +114,22 @@ components:
         maxLength: 63
         pattern: ^[a-z0-9][a-z0-9\-]*[a-z0-9]$
   schemas:
+    ErrorResponse:
+      type: object
+      description: S3-compatible error response returned when an operation fails
+      properties:
+        Code:
+          type: string
+          description: S3 error code string identifying the type of error, e.g. NoSuchBucket, AccessDenied, InvalidBucketName
+        Message:
+          type: string
+          description: Human-readable description of the error
+        Resource:
+          type: string
+          description: The bucket or object key that caused the error
+        RequestId:
+          type: string
+          description: Unique identifier for the failed request for debugging
     Bucket:
       type: object
       description: An S3 bucket in the Ceph Object Storage gateway
@@ -148,22 +164,6 @@ components:
               description: List of bucket entries
               items:
                 $ref: '#/components/schemas/Bucket'
-    ErrorResponse:
-      type: object
-      description: S3-compatible error response returned when an operation fails
-      properties:
-        Code:
-          type: string
-          description: S3 error code string identifying the type of error, e.g. NoSuchBucket, AccessDenied, InvalidBucketName
-        Message:
-          type: string
-          description: Human-readable description of the error
-        Resource:
-          type: string
-          description: The bucket or object key that caused the error
-        RequestId:
-          type: string
-          description: Unique identifier for the failed request for debugging
   securitySchemes:
     s3Auth:
       type: apiKey
