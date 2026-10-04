@@ -188,6 +188,9 @@ apis:
   - type: JSONStructure
     url: json-structure/rook-ceph-object-store-structure.json
 common:
+  - type: CapabilityMap
+    url: capabilities/rook-capability-edges.yml
+    name: Rook Business Capability Map
   - type: IssueTracker
     url: https://github.com/rook/rook/issues
   - type: Releases
