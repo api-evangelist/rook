@@ -85,6 +85,26 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 components:
+  parameters:
+    BucketParam:
+      name: bucket
+      in: path
+      required: true
+      description: Name of the S3 bucket in the Ceph Object Storage gateway. Must be globally unique within the object store and follow DNS naming conventions.
+      schema:
+        type: string
+        minLength: 3
+        maxLength: 63
+        pattern: ^[a-z0-9][a-z0-9\-]*[a-z0-9]$
+    KeyParam:
+      name: key
+      in: path
+      required: true
+      description: Object key (path) within the bucket. Can include forward slashes to simulate a directory hierarchy, with a maximum length of 1024 bytes.
+      schema:
+        type: string
+        minLength: 1
+        maxLength: 1024
   schemas:
     InitiateMultipartUploadResult:
       type: object
@@ -99,22 +119,6 @@ components:
         UploadId:
           type: string
           description: Unique identifier for this multipart upload, required in all subsequent part upload and complete/abort requests
-    ErrorResponse:
-      type: object
-      description: S3-compatible error response returned when an operation fails
-      properties:
-        Code:
-          type: string
-          description: S3 error code string identifying the type of error, e.g. NoSuchBucket, AccessDenied, InvalidBucketName
-        Message:
-          type: string
-          description: Human-readable description of the error
-        Resource:
-          type: string
-          description: The bucket or object key that caused the error
-        RequestId:
-          type: string
-          description: Unique identifier for the failed request for debugging
     ListMultipartUploadsResult:
       type: object
       description: Response listing in-progress multipart uploads for a bucket
@@ -145,26 +149,22 @@ components:
                     type: string
                   DisplayName:
                     type: string
-  parameters:
-    BucketParam:
-      name: bucket
-      in: path
-      required: true
-      description: Name of the S3 bucket in the Ceph Object Storage gateway. Must be globally unique within the object store and follow DNS naming conventions.
-      schema:
-        type: string
-        minLength: 3
-        maxLength: 63
-        pattern: ^[a-z0-9][a-z0-9\-]*[a-z0-9]$
-    KeyParam:
-      name: key
-      in: path
-      required: true
-      description: Object key (path) within the bucket. Can include forward slashes to simulate a directory hierarchy, with a maximum length of 1024 bytes.
-      schema:
-        type: string
-        minLength: 1
-        maxLength: 1024
+    ErrorResponse:
+      type: object
+      description: S3-compatible error response returned when an operation fails
+      properties:
+        Code:
+          type: string
+          description: S3 error code string identifying the type of error, e.g. NoSuchBucket, AccessDenied, InvalidBucketName
+        Message:
+          type: string
+          description: Human-readable description of the error
+        Resource:
+          type: string
+          description: The bucket or object key that caused the error
+        RequestId:
+          type: string
+          description: Unique identifier for the failed request for debugging
   securitySchemes:
     s3Auth:
       type: apiKey
