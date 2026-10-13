@@ -1,0 +1,26 @@
+edges:
+- partner_name: Amazon Web Services
+  partner: amazon-web-services
+  partner_match: shape-anchor
+  channel: provider-built
+  relationship: compatible
+  direction: provider-built
+  shape: aws-s3
+  type: contract
+  degree: declared-unqualified
+  evidence: https://github.com/api-evangelist/rook/blob/main/openapi/rook-buckets-api-openapi.yml#L4
+  evidence_kind: own-contract
+  quote: 'description: Rook provisions Ceph Object Storage gateways (Ceph RADOS Gateway / RGW) that expose an S3-compatible
+    REST API for object storage operations.'
+  structural_match:
+    file: rook/openapi/rook-objects-api-openapi.yml
+    ops:
+    - DeleteObject
+    - GetObject
+    - HeadObject
+    - ListObjects
+    - PutObject
+  detected_by: sweep-shape-compat.py
+  first_seen: '2026-10-13'
+generated: '2026-10-13'
+method: searched
